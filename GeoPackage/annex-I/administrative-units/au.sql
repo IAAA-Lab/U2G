@@ -539,4 +539,4 @@ CREATE VIEW 'AU_ResidenceOfAuthority_name' (base_id, related_id) AS
 SELECT id, name FROM AU_ResidenceOfAuthority
 WHERE name IS NOT NULL;
 COMMIT;
-PRAGMA user_version=1021
+PRAGMA user_version=10201
