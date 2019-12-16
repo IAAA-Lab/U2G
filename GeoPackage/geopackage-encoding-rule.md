@@ -1,10 +1,6 @@
 # INSPIRE UML-to-GeoPackage encoding rule <!-- omit in toc -->
 
 **Note:** This encoding rule is a work in progress.
-Below it is a list of application schemas that have been encoded with this rule successfully.
-
-- *Annex I: Administrative Units* **[AdministrativeUnits](https://inspire.ec.europa.eu/data-model/approved/r4618/html/index.htm?goto=2:1:2:1:7086)** (Compliance, Flattened)
-- *Annex I: Geographical Names* **[Geographical Names](https://inspire.ec.europa.eu/data-model/approved/r4618/html/index.htm?goto=2:1:6:2:7220)** (in progress)
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -211,6 +207,7 @@ All property types are transformed to the simple types that GeoPackage knows abo
 The exact mapping from the UML model to the [GeoPackage datatypes](https://www.geopackage.org/spec121/#table_column_data_types) is outlined in the following table:
 
 **Table: ISO 19103 to GeoPackage datatype mapping.**
+
 | UML Model property type | GeoPackage datatype | SQLite storage class | Conversion Notes |
 | ------ | ----- | ----- | ----- |
 | `CharacterString` | `TEXT` | `TEXT` | Unicode [1]
@@ -248,6 +245,7 @@ It is transformed to a new property of the type `TEXT` with the name `x_uom`.
 ISO 19107 defines a set of Geometry types, which need to be mapped to the types available in GeoPackage.
 
 **Table: ISO 19107 to GeoPackage datatype mapping.**
+
 | ISO 19107 type | GeoPackage datatype | Conversion Notes |
 | ------ | ----- | ----- |
 | `GM_Aggregate` | `GEOMETRYCOLLECTION` | Core model
@@ -263,6 +261,7 @@ ISO 19107 defines a set of Geometry types, which need to be mapped to the types 
 | `GM_Primitive` | `GEOMETRY` | Core model
 | `GM_Surface` | `SURFACE` | Non-linear geometry type extension
 | `GM_Triangle` | `POLYGON` | Core model
+
 **Note**: The table is not yet complete.
 
 implementers may constraint to a non-abstract subclass of the corresponding GeoPackage datatype if this datatype is abstact:
@@ -350,12 +349,13 @@ The values are specified in the table `gpkg_data_column_constraints`.
 The following table shows how to encode UML model enumeration literals as `gpkg_data_column_constraints` rows.
 
 **Table: Mapping to Data Columns Constraints Table.**
-| UML Model concept | Colum Name | Colum Type | Column Description | Conversion Notes |
-| --- | --- | --- | --- | --- | --- |
-| Enumeration | `constraint_name` | `TEXT` | Name of constraint (lowercase) |Enumeration name in lowercase
-| | `constraint_type` | `TEXT` | `enum` |
-| Enumeration literal | `value` | `TEXT` | Case sensitive value |
-| | `description` | `TEXT` | Describes the enumeration literal | The URI of the enumeration value in the INSPIRE Registry
+
+| UML Model concept | Colum Name | Colum Type | Column Description | Conversion Notes 
+| ----------------- | ---------- | ---------- | ------------------ | --- 
+| Enumeration       | `constraint_name` | `TEXT` | Name of constraint (lowercase) | Enumeration name in lowercase
+|                   | `constraint_type` | `TEXT` | `enum` |
+| Enumeration literal | `value` | `TEXT`      | Case sensitive value |
+|                   | `description` | `TEXT`  |  Describes the enumeration literal | The URI of the enumeration value in the INSPIRE Registry
 
 **Example:** The example shows the SQL statements that encodes the `TechnicalStatusValue` enumeration used as type of the property `technicalStatus` of the feature type `AdmnistrativeBoundary`, and its literal values. The URI of the enumeration value in the INSPIRE Enumeration Registry can be derived from the names of the enumeration and the enumeration literal.
 
@@ -380,7 +380,7 @@ INSERT INTO gpkg_data_columns(table_name, column_name, constraint_name)
 If required, specific rules being defined on a case-by-case basis in each theme profile.
 
 ##### Code Lists
-<!-- Status: implemented as `general rule CodeList Types` -->>
+<!-- Status: implemented as `general rule CodeList Types` -->
 
 The general rule for the stereotype `<<codeList>>` is the same as the enumerations rule.
 
@@ -397,8 +397,9 @@ Remaining uses of the stereotype `<<voidable>>` in properties are ignored.
 Authoritative descriptions of the reasons for void values in the INSPIRE Registry ([VoidReasonValue code list](http://inspire.ec.europa.eu/codelist/VoidReasonValue)) are encoded using the metadata extension as follows:
 
 **Table: Records in gpkg_metadata.**
-| `id` | `md_scope` | `md_standard_uri` | `mime_type` | `metadata`
-| -- | -- | -- | -- | -- | -- | --
+
+| `id` | `md_scope` | `md_standard_uri` | `mime_type` | `metadata` |
+| -- | -- | -- | -- | -- |
 | `1` | `attribute` | `http://www.isotc211.org/2005/gmd` | `text/xml` | Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unknown/Unknown.en.iso19135xml`  
 | `2` | `attributeType` | `http://www.isotc211.org/2005/gmd` | `text/xml`| Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated/Unpopulated.en.iso19135xml`
 | `3` | `attribute`  | `http://www.isotc211.org/2005/gmd`| `text/xml` | Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Withheld/Withheld.en.iso19135xml`  
@@ -447,6 +448,7 @@ Property types for properties with a cardinality greater than `1` and an enumera
 For each distinct enumeration or codelist involved in an array in the model is created a supporting `Attributes` table named as the enumeration or codelist with the following structure:
 
 **Table: Structure of a supporting Attribute table for an enumeration or codelist.**
+
 | Column name | Type | Description | Null | Constraint
 | ----------- | ---- | ----------- | ---- | ---------  
 | `id`| `INTEGER` | Autoincrement primary key | no | PK
@@ -523,8 +525,9 @@ The [INSPIRE Data Specification on Coordinate Reference Systems – Technical Gu
 The following table explains how to encode default CRS from the Table 1 in the `gpkg_spatial_ref_sys` table.
 
 **Table: Mapping to `gpkg_spatial_ref_sys`.**
-| Column Name | Column Type | Column Description | Value from Table 1
-| --- | --- | --- | --- | --- |
+
+| Column Name | Column Type | Column Description | Value from Table 1 |
+| --- | --- | --- | --- | 
 | `srs_name` | `TEXT` | Human readable name of this SRS | Text from `Short name`
 | `srs_id` | `INTEGER` | Unique identifier for each SRS within a GeoPackage | Any value (e.g. EPSG numeric ID)
 | `organization` | `TEXT` | Case-insensitive name of the defining organization | `"EPSG"`
@@ -547,6 +550,7 @@ The first component of GeoPackage metadata is the `gpkg_metadata` table that MAY
 implementers must provide authoritative descriptions of the reasons of `null` values in when a correct value may exists as follows:
 
 **Table: Records in gpkg_metadata_reference giving a reason and scope.**
+
 | Reason | Scope | `reference_scope` | `table_name` | `column_name` | `row_id` | `md_file_id`
 | -- | -- | -- | -- | -- | -- | --
 | `Unknown` |  `attribute` | `row/col` | *table name* | *column name* | *row id* | `1`  
