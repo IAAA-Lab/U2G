@@ -212,6 +212,7 @@ The exact mapping from the UML model to the [GeoPackage datatypes](https://www.g
 | ------ | ----- | ----- | ----- |
 | `CharacterString` | `TEXT` | `TEXT` | Unicode [1]
 | `Boolean` | `BOOLEAN` | `INTEGER` | 0 for false and 1 for true |
+| `Number` | `TEXT`| `TEXT`| Abstract base type for all number [2]
 | `Integer` | `INTEGER` | `INTEGER` | 64-bit signed integer  |
 | `Real` | `REAL` | `REAL` | 64-bit IEEE floating point number  |
 | `Decimal` | `TEXT` | `TEXT` | Number with a decimal point and/or an exponent [2] |
@@ -222,7 +223,9 @@ The exact mapping from the UML model to the [GeoPackage datatypes](https://www.g
 The SQLite API contains functions which allow passing and retrieving text using either UTF-8 or UTF-16 encoding.
 These functions can be freely mixed and proper conversions are performed transparently when necessary.
 
-[2] *Direct use scenario*: `Decimal` values stored in SQLite as `TEXT` can be used in [SQL `CAST` expressions](https://www.sqlite.org/lang_expr.html#castexpr) to convert them into `INTEGER` and `REAL` values. If the text:
+[2] Implementers may use `INTEGER` or `REAL` if a dataset needs it; otherwise may apply the rules for a direct use (see [3]).
+
+[3] *Direct use scenario*: `Decimal` values stored in SQLite as `TEXT` can be used in [SQL `CAST` expressions](https://www.sqlite.org/lang_expr.html#castexpr) to convert them into `INTEGER` and `REAL` values. If the text:
 
 - Looks like an integer and the value is small enough to fit in a 64-bit signed integer, then the result will be `INTEGER`.
 - Looks like floating point (there is a decimal point and/or an exponent) and can be losslessly converted back and forth between IEEE 754 64-bit float and a 51-bit signed integer, then the result is `INTEGER`.
@@ -350,8 +353,8 @@ The following table shows how to encode UML model enumeration literals as `gpkg_
 
 **Table: Mapping to Data Columns Constraints Table.**
 
-| UML Model concept | Colum Name | Colum Type | Column Description | Conversion Notes 
-| ----------------- | ---------- | ---------- | ------------------ | --- 
+| UML Model concept | Colum Name | Colum Type | Column Description | Conversion Notes
+| ----------------- | ---------- | ---------- | ------------------ | ---
 | Enumeration       | `constraint_name` | `TEXT` | Name of constraint (lowercase) | Enumeration name in lowercase
 |                   | `constraint_type` | `TEXT` | `enum` |
 | Enumeration literal | `value` | `TEXT`      | Case sensitive value |
@@ -527,7 +530,7 @@ The following table explains how to encode default CRS from the Table 1 in the `
 **Table: Mapping to `gpkg_spatial_ref_sys`.**
 
 | Column Name | Column Type | Column Description | Value from Table 1 |
-| --- | --- | --- | --- | 
+| --- | --- | --- | --- |
 | `srs_name` | `TEXT` | Human readable name of this SRS | Text from `Short name`
 | `srs_id` | `INTEGER` | Unique identifier for each SRS within a GeoPackage | Any value (e.g. EPSG numeric ID)
 | `organization` | `TEXT` | Case-insensitive name of the defining organization | `"EPSG"`
