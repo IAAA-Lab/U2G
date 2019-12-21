@@ -5,18 +5,12 @@
 GeoPackage may serve as an alternative or additional encoding for complex and large INSPIRE data sets.
 This Repository contains a [UML-to-GeoPackage encoding rule](GeoPackage/geopackage-encoding-rule.md) based on the results of [Action 2017.2 on alternative encodings](https://webgate.ec.europa.eu/fpfis/wikis/pages/viewpage.action?pageId=277742184).
 The documents of this work are based on the repository [INSPIRE-MIF 2017.2](https://github.com/INSPIRE-MIF/2017.2).
-
-This Repository contains an [INSPIRE UML-to-GeoPackage encoding rule](GeoPackage/geopackage-encoding-rule.md) (*status: draft; unions and hierarchies in progress*) and the following application schemas:
+This Repository contains an [INSPIRE UML-to-GeoPackage encoding rule](GeoPackage/geopackage-encoding-rule.md) (*status: draft; hierarchies in progress*) and the following application schemas:
 
 | Theme | Application schema | UML Model | GeoPackage file | SQL dump
 | ----- | ------------------ | --------- | --------------- | --------
 | Administrative Units | Administrative Units | [model](http://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=2:1:2:1:7106) |  [au.gpkg](https://github.com/IAAA-Lab/U2G/releases/download/v0.5-beta/inspire-u2g.zip) | [au.sql](GeoPackage/annex-I/administrative-units/au.sql)
-
-The standalone SQL dumps are created as follows:
-
-```sh
-sqlite3 schema.gpkg .dump | (cat -; echo PRAGMA user_version=10201) > schema.sql
-```
+| Geographical Names | Geographical Names | [model](https://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=2:1:6:2:7240) |  [gn.gpkg](https://github.com/IAAA-Lab/U2G/releases/download/v0.6-beta/inspire-u2g.zip) | [gn.sql](GeoPackage/annex-I/geographical-names/gn.sql)
 
 ## Credits
 

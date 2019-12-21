@@ -1,3 +1,5 @@
+PRAGMA application_id=1196444487;
+PRAGMA user_version=10201;
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE gpkg_spatial_ref_sys (
@@ -24,24 +26,24 @@ CREATE TABLE gpkg_contents (
   srs_id INTEGER,
   CONSTRAINT fk_gc_r_srs_id FOREIGN KEY (srs_id) REFERENCES gpkg_spatial_ref_sys(srs_id)
 );
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeBoundary','features','AdministrativeUnits::AdministrativeBoundary','A line of demarcation between administrative units.','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,0);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit','features','AdministrativeUnits::AdministrativeUnit','Unit of administration where a Member State has and/or exercises jurisdictional rights, for local, regional and national governance.','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,0);
-INSERT INTO gpkg_contents VALUES('AU_Condominium','features','AdministrativeUnits::Condominium',replace('An administrative area established independently to any national administrative division of territory  and administered by two or more countries.\n\nNOTE Condominium is not a part of any national administrative hierarchy of territory division in Member State.','\n',char(10)),'2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,0);
-INSERT INTO gpkg_contents VALUES('AU_ResidenceOfAuthority','features','AdministrativeUnits::ResidenceOfAuthority','Data type representing the name and position of a residence of authority.','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,0);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeHierarchyLevel','attributes','AdministrativeUnits::AdministrativeHierarchyLevel','Levels of administration in the national administrative hierarchy. This code list reflects the level in the hierarchical pyramid of the administrative structures, which is based on geometric aggregation of territories and does not necessarily describe the subordination between the related administrative authorities.','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('BASE_Identifier','attributes','Base Types::Identifier',replace('External unique object identifier published by the responsible body, which may be used by external applications to reference the spatial object.\n\nNOTE1 External object identifiers are distinct from thematic object identifiers.\n\nNOTE 2 The voidable version identifier attribute is not part of the unique identifier of a spatial object and may be used to distinguish two versions of the same spatial object.\n\nNOTE 3 The unique identifier will not change during the life-time of a spatial object.','\n',char(10)),'2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('GN_GeographicalName','attributes','Geographical Names::GeographicalName','Proper noun applied to a real world entity.','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('GMD_LocalisedCharacterString','attributes','Cultural and linguistic adapdability::LocalisedCharacterString','','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('GN_SpellingOfName','attributes','Geographical Names::SpellingOfName',replace('Proper way of writing a name.\n\nSOURCE Adapted from [UNGEGN Manual 2006].\n\nNOTE Proper spelling means the writing of a name with the correct capitalisation and the correct letters and diacritics present in an accepted standard order.','\n',char(10)),'2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_boundary_admUnit','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeBoundary_nationalLevel','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_administeredBy','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_name','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_nationalLevelName','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_residenceOfAuthority','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_Condominium_admUnit','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('AU_Condominium_name','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
-INSERT INTO gpkg_contents VALUES('GN_GeographicalName_spelling','attributes',NULL,'','2019-12-16T15:23:46.408Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeBoundary','features','AdministrativeUnits::AdministrativeBoundary','A line of demarcation between administrative units.','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,0);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit','features','AdministrativeUnits::AdministrativeUnit','Unit of administration where a Member State has and/or exercises jurisdictional rights, for local, regional and national governance.','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,0);
+INSERT INTO gpkg_contents VALUES('AU_Condominium','features','AdministrativeUnits::Condominium',replace('An administrative area established independently to any national administrative division of territory  and administered by two or more countries.\n\nNOTE Condominium is not a part of any national administrative hierarchy of territory division in Member State.','\n',char(10)),'2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,0);
+INSERT INTO gpkg_contents VALUES('AU_ResidenceOfAuthority','features','AdministrativeUnits::ResidenceOfAuthority','Data type representing the name and position of a residence of authority.','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,0);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeHierarchyLevel','attributes','AdministrativeUnits::AdministrativeHierarchyLevel','Levels of administration in the national administrative hierarchy. This code list reflects the level in the hierarchical pyramid of the administrative structures, which is based on geometric aggregation of territories and does not necessarily describe the subordination between the related administrative authorities.','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('BASE_Identifier','attributes','Base Types::Identifier',replace('External unique object identifier published by the responsible body, which may be used by external applications to reference the spatial object.\n\nNOTE1 External object identifiers are distinct from thematic object identifiers.\n\nNOTE 2 The voidable version identifier attribute is not part of the unique identifier of a spatial object and may be used to distinguish two versions of the same spatial object.\n\nNOTE 3 The unique identifier will not change during the life-time of a spatial object.','\n',char(10)),'2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('GN_GeographicalName','attributes','Geographical Names::GeographicalName','Proper noun applied to a real world entity.','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('GMD_LocalisedCharacterString','attributes','Cultural and linguistic adapdability::LocalisedCharacterString','','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('GN_SpellingOfName','attributes','Geographical Names::SpellingOfName',replace('Proper way of writing a name.\n\nSOURCE Adapted from [UNGEGN Manual 2006].\n\nNOTE Proper spelling means the writing of a name with the correct capitalisation and the correct letters and diacritics present in an accepted standard order.','\n',char(10)),'2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_boundary_admUnit','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeBoundary_nationalLevel','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_administeredBy','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_name','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_nationalLevelName','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_AdministrativeUnit_residenceOfAuthority','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_Condominium_admUnit','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('AU_Condominium_name','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO gpkg_contents VALUES('GN_GeographicalName_spelling','attributes',NULL,'','2019-12-21T17:10:24.268Z',NULL,NULL,NULL,NULL,NULL);
 CREATE TABLE gpkg_extensions (
   table_name TEXT,
   column_name TEXT,
@@ -539,4 +541,4 @@ CREATE VIEW 'AU_ResidenceOfAuthority_name' (base_id, related_id) AS
 SELECT id, name FROM AU_ResidenceOfAuthority
 WHERE name IS NOT NULL;
 COMMIT;
-PRAGMA user_version=10201
+
