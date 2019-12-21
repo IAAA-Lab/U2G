@@ -9,8 +9,8 @@ This Repository contains an [INSPIRE UML-to-GeoPackage encoding rule](GeoPackage
 
 | Theme | Application schema | UML Model | GeoPackage file | SQL dump
 | ----- | ------------------ | --------- | --------------- | --------
-| Administrative Units | Administrative Units | [model](http://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=2:1:2:1:7106) |  [au.gpkg](https://github.com/IAAA-Lab/U2G/releases/download/v0.5-beta/inspire-u2g.zip) | [au.sql](GeoPackage/annex-I/administrative-units/au.sql)
-| Geographical Names | Geographical Names | [model](https://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=2:1:6:2:7240) |  [gn.gpkg](https://github.com/IAAA-Lab/U2G/releases/download/v0.6-beta/inspire-u2g.zip) | [gn.sql](GeoPackage/annex-I/geographical-names/gn.sql)
+| Administrative Units | Administrative Units | [model](http://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=2:1:2:1:7106) |  [au.gpkg](https://github.com/IAAA-Lab/U2G/releases/download/v0.6-beta/inspire-u2g-v0.6-beta.zip) | [au.sql](GeoPackage/annex-I/administrative-units/au.sql)
+| Geographical Names | Geographical Names | [model](https://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=2:1:6:2:7240) |  [gn.gpkg](https://github.com/IAAA-Lab/U2G/releases/download/v0.6-beta/inspire-u2g-v0.6-beta.zip) | [gn.sql](GeoPackage/annex-I/geographical-names/gn.sql)
 
 ## Credits
 
