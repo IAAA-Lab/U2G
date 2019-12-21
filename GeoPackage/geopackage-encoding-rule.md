@@ -236,11 +236,16 @@ Any UML Model property whose  `Integer` or `Real` values may overflow the limits
 Any other UML Model property type is to be mapped to `TEXT`, with specific rules being defined on a case-by-case basis in each theme profile.
 
 ###### Properties with a `uom` attribute
-<!-- Status: not implemented -->
+<!-- Status: uom is added as a separate property` -->
 
 The unit of measurement attribute (`uom`) on any property `x` has to be retained.
 
 It is transformed to a new property of the type `TEXT` with the name `x_uom`.
+
+The syntax and value space of the new property is the same of `gml:UomIdentifier`.
+The legal values of the new property are the literals of the data column constraint enum `GML_UomIdentifier`.
+This restriction may be enforced by SQL triggers or by code in applications that update GeoPackage data values.
+
 
 ##### ISO 19107 - Geometry types
 <!-- Status: implemented as `general rule ISO-19107 Geometry Types` -->
