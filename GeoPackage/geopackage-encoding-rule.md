@@ -305,19 +305,21 @@ For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be f
 
 This rule flattens complex model structures.
 
-This enconding rule is appled to all `DataType` types (`A`) that are used as value type by the property `P1` of a other type (`B`) but the data type `Identifier`.
+This enconding rule is appled to all `DataType` types (`B`) that are used as value type by the property `x` of a other type (`A`) but the data type `Identifier`.
 
-The property `P1` in `B` is replaced with the content of `A`, i.e the type `A` is flattened when:
+The property `x` in `A` is replaced with the content of `B`, i.e the type `B` is flattened when:
 
-- the value type of property `P1` of type `B` is `A`.
-- the maximum multiplicity of the property `P1` is `1`.
-- the maximum multiplicity of the properties of the type `A` is `1`.
+- the value type of property `x` of type `A` is `B`.
+- the maximum multiplicity of the property `x` is `1`.
+- the maximum multiplicity of the properties of the type `B` is `1`.
 
 The process is as follows:
 
-- Each property `P2` of `A` is copied into type `B`.
-- The added property concatenates the names of `P1` and `P2` with the separator `"_"`.
-- The minimum multiplicity of the added property is the minimum of `P1` and `P2`.
+- Each property `y` of `B` is copied into type `A` and then:
+  - It is renamed to `x_y`.
+  - Its minimun multiplicity is the minimum of `x` and `y`.
+  - The remaining characteristics of `x` are copied to it.
+- Next, the property `x` is removed from type `A`.
 
 This rule is also applied to the type `PT_Locale` so `languageCode`, `characterSetCode`, and `country` are added as separate properties.
 
@@ -328,12 +330,26 @@ Where an abstract type with multiple concrete sub-types is used as a property ty
 As an example, limiting the potential geometry types in this way can make processing easier.
 
 ##### Union Types
-<!-- Status: pending -->
+<!-- Status: implemented as `flatten union types` -->
 
-A `union` represents a choice between multiple properties with potentially different value types, such as in the `AreaOfResponsibilityType`, where there are options such as `areaOfResponsibilityByAdministrativeUnit` and `areaOfResponsibilityByNamedPlace`.
-The multiplicity of these options may also differ.
+This rule flattens `union` types.
 
-For Union Types used in INSPIRE models, suitable mappings need to be found on a case-by-case basis.
+A `union` type is structured data type without identity where exactly one of the properties of the type is present in any instance.
+
+The property `x` in `A` is replaced with the properties of the `union` `B`, i.e the `union` type `B` is flattened when:
+
+- the value type of property `x` of type `A` is `B`.
+- the maximum multiplicity of the property `x` is `1`.
+
+The process is as follows:
+
+- Each property of type `B` (i.e. `y`) is copied into type `A` and then:
+  - Its renamed to `x_y`.
+  - Its minimum multiplicity is set to `0`.
+  - The remaining characteristics of `x` are copied to it.
+- Next, the property `x` is removed from type `A`.
+
+The restriction that exactly one of the properties of the type is present in any instance may be may be enforced by code in applications that update GeoPackage data values.
 
 ##### Enumerations
 <!-- Status: implemented as `general rule Enumeration Types` -->
