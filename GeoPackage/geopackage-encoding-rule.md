@@ -183,20 +183,18 @@ In this encoding rule, we take a two-step approach, where we apply model transfo
 
 ##### Feature types
 
-The conversion rules of types that have the `<<featureType>>` sterotype are as follows:
+All concrete types that have the stereotype `<<featureType>>` can be converted to GeoPackage content with the following considerations:
 
-- If the type has only one geometry type property, the geometry type can be mapped to a GeoPackage geometry type, and the property a has maximum multiplicity of `1`  (for example `AdministrativeUnits::AdministrativeUnit`), then the type is converted to a `GeoPackage feature`. <!-- Status: implemented as `simple Feature Type stereotype to GeoPackage Feature` -->
-- If the type has no geometry type properties (for example `Addresses::ThoroughfareName`), then the type is converted to a `GeoPackage attribute`. <!-- Status: implemented as `Feature Type stereotype without geometry to GeoPackage Attribute` -->
-- Otherwise, the type conversion must be specified on a case-by-case basis in each theme profile.
+- Where a class has one attribute with a geometry type and a maximum multiplicity of `1`, the class will be mapped to a `feature table` and the type of this attribute will be mapped to a GeoPackage geometry type ([ISO 19107 - Geometry types](#iso-19107---geometry-types)).
+- Where a class has no geometry attributes (for example `Addresses::ThoroughfareName`), the class will be mapped to a `attribute table` (see [Data types](#data-types)). A GeoPackage `feature table` shall have one geometry column.
+- Othwerwise, i.e. a class has more than one geometry attribute or the maximum mutiplicity is greater than `1`, a theme-specific profile has to define which geometry attribute is the _default_ geometry and how to map the additional geometry attributes. A GeoPackage `feature table` shall have only one explicit geometry column.
 
 ##### Data Types
-<!-- Status: implemented -->
 
-The conversion rules of types that have the `<<dataType>>` sterotype are as follows:
+All concrete types that have the stereotype `<<dataType>>` can be converted to GeoPackage content with the follwoing considerations:
 
-- If the type has only one geometry type property, the geometry type can be mapped to a GeoPackage geometry type, and the property a has maximum multiplicity of `1`  (for example `Addresses::GeographicPosition`), then the type is converted to a `GeoPackage feature`. <!-- Status: implemented as `Data Type stereotype to GeoPackage Attribute` -->
-- If the type has no geometry type properties (for example `GeographicalNames::GeographicalName`), then the type is converted to a `GeoPackage attribute`. <!-- Status: implemented as `simple feature-like Data Type stereotype to GeoPackage Feature` -->
-- Otherwise, the type conversion must be specified on a case-by-case basis in each theme profile.
+- Where a class has no geometry attributes (for example `Addresses::ThoroughfareNameValue`), the class will be mapped to a Geopackage `attribute table` if, after aplying the all the encoding rules, the class is yet used as type in some property, i.e. the class participates in at least one `relation table` derived from a property.
+- Otherwise, the rules for [Feature types](#feature-types) must be applied because `attribute tables` are intended for data that do not have an explicit geometry attribute.
 
 ##### ISO 19103
 
