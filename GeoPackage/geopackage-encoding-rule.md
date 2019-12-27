@@ -1,6 +1,8 @@
 # INSPIRE UML-to-GeoPackage encoding rule <!-- omit in toc -->
 
-**Note:** This encoding rule is a work in progress.
+![Development version][development-shield]
+
+**Note:** This document must be considered as a development document only endorsed by the authors.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -650,3 +652,5 @@ Content is copied from the columns of source table to the columns target table u
 1. If there are candidates, go to the step `2`.
 1. Otherwise, there are no more tables that can be flattened. Next the candidate relations and source tables used during the iterations must be dropped if they only participated in the flattened relations.
 This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_data_columns`, `gpkgext_relations` and `gpkg_extensions`.
+
+[development-shield]: https://img.shields.io/badge/-development%20version-red?style=flat
