@@ -77,7 +77,7 @@ GeoPackages that comply with the requirements in the standard and do not impleme
 Within INSPIRE, this encoding rule can be used to encode large datasets from several, complex themes without information loss in a single, portable file.
 Any tool able to access to SQLite database can access and update attribute data within a GeoPackage.
 ArcGIS, QGIS, FME, GeoTools are desktop and server tools that implement the GeoPackage Encoding Standard and provide access to GeoPackages.
-GDAL (C/C++/Python) and NGA GeoPackage Libraries (Java/Objective-C/JavaScript) and SDK (Android/iOS/Web) can be used for storing and access data from GeoPackages in Destop, server and mobile environments.
+GDAL (C/C++/Python) and NGA GeoPackage Libraries (Java/Objective-C/JavaScript) and SDK (Android/iOS/Web) can be used for storing and access data from GeoPackages in Desktop, server and mobile environments.
 
 ## Scope
 
@@ -105,7 +105,7 @@ This rule optimizes usage of a INSPIRE dataset for mapping and geoprocessing in 
 
 ### Coverage of INSPIRE Themes
 
-For each theme to be covered, a specific **GeoPackage Encoding Rule** and an empty **GeoPackage template** is provided.
+For each theme to be covered, an empty **GeoPackage template** is provided.
 The *GeoPackage template* is a *GeoPackage* instantiated with the schema for a specific INSPIRE theme.
 
 These can reside in subfolders in the same repository as this general encoding rule, but can also be maintained in other places.
@@ -116,7 +116,7 @@ This encoding rule addresses specific technical issues that have been problemati
 
 - Most GIS software cannot fully make use of non-simple attributes and nested structures for styling, processing and filtering;
 - Multiple values per (complex) properties cannot be used fully in ArcGIS and other GIS tools;
-- References to other features often cannot be resolved by GIS tools; Propertes of referenced features cannot be used in styling or for filtering;
+- References to other features often cannot be resolved by GIS tools; Properties of referenced features cannot be used in styling or for filtering;
 - Abstract geometry types for an object mean that a wide range of different geometries can be used for any single feature class;
 - Mixed geometry types in a FeatureCollection are usually not supported.
 
@@ -128,11 +128,12 @@ The encoding uses the [OGC® GeoPackage Encoding Standard - with Corrigendum ver
 - [Metadata](http://www.geopackage.org/spec121/#extension_metadata)
 - [Schema](http://www.geopackage.org/spec121/#extension_schema)
 - [Related Tables Extension](http://docs.opengeospatial.org/is/18-000/18-000.html)
-- [WKT for Coordinate Refernece Systems](http://www.geopackage.org/spec121/#extension_crs_wkt)
+- [WKT for Coordinate Reference Systems](http://www.geopackage.org/spec121/#extension_crs_wkt)
 
 ### Technical Limitations
 
-There are not extensions for 3D geometries.
+TIN and 3D geometries are not supported yet, however they can be stored as `BLOB`.
+
 Raster ([native, as tile matrix](https://www.geopackage.org/spec121/#tiles)) and coverage ([extension](http://docs.opengeospatial.org/is/17-066r1/17-066r1.html)) data support has not been tested yet.
 
 ### Cross-cutting INSPIRE Requirements for Encoding Rules
@@ -159,7 +160,7 @@ D2.7 also contains a relevant recommendation:
 This section contains references to standards documents and related resources.
 
 - [OGC® GeoPackage Encoding Standard - with Corrigendum version 1.2.1](https://www.geopackage.org/spec121/)
-- [OGC GeoPackge Related Tables Extension](http://docs.opengeospatial.org/is/18-000/18-000.html)
+- [OGC GeoPackage Related Tables Extension](http://docs.opengeospatial.org/is/18-000/18-000.html)
 - [INSPIRE Drafting Team Data Specifications. D2.7: Guidelines for the encoding of spatial data, Version 3.3](http://inspire.ec.europa.eu/documents/guidelines-encoding-spatial-data)
 
 ## Terms and Definitions
@@ -185,23 +186,28 @@ In this encoding rule, we take a two-step approach, where we apply model transfo
 
 ##### Feature types
 
+![Implemented][implemented-shield]
+
 All concrete types that have the stereotype `<<featureType>>` can be converted to GeoPackage content with the following considerations:
 
 - Where a class has one attribute with a geometry type and a maximum multiplicity of `1`, the class will be mapped to a `feature table` and the type of this attribute will be mapped to a GeoPackage geometry type ([ISO 19107 - Geometry types](#iso-19107---geometry-types)).
 - Where a class has no geometry attributes (for example `Addresses::ThoroughfareName`), the class will be mapped to a `attribute table` (see [Data types](#data-types)). A GeoPackage `feature table` shall have one geometry column.
-- Othwerwise, i.e. a class has more than one geometry attribute or the maximum mutiplicity is greater than `1`, a theme-specific profile has to define which geometry attribute is the _default_ geometry and how to map the additional geometry attributes. A GeoPackage `feature table` shall have only one explicit geometry column.
+- Otherwise, i.e. a class has more than one geometry attribute or the maximum multiplicity is greater than `1`, a theme-specific profile has to define which geometry attribute is the _default_ geometry and how to map the additional geometry attributes. A GeoPackage `feature table` shall have only one explicit geometry column.
 
 ##### Data Types
 
-All concrete types that have the stereotype `<<dataType>>` can be converted to GeoPackage content with the follwoing considerations:
+![Implemented][implemented-shield]
 
-- Where a class has no geometry attributes (for example `Addresses::ThoroughfareNameValue`), the class will be mapped to a Geopackage `attribute table` if, after aplying the all the encoding rules, the class is yet used as type in some property, i.e. the class participates in at least one `relation table` derived from a property.
+All concrete types that have the stereotype `<<dataType>>` can be converted to GeoPackage content with the following considerations:
+
+- Where a class has no geometry attributes (for example `Addresses::ThoroughfareNameValue`), the class will be mapped to a GeoPackage `attribute table` if, after applying the all the encoding rules, the class is yet used as type in some property, i.e. the class participates in at least one `relation table` derived from a property.
 - Otherwise, the rules for [Feature types](#feature-types) must be applied because `attribute tables` are intended for data that do not have an explicit geometry attribute.
 
 ##### ISO 19103
 
 ###### Basic types
-<!-- Status: implemented as `general rule ISO-19103 Basic Types` -->
+
+![In progress][in-progress-shield]
 
 All property types are transformed to the simple types that GeoPackage knows about.
 The exact mapping from the UML model to the [GeoPackage datatypes](https://www.geopackage.org/spec121/#table_column_data_types) is outlined in the following table:
@@ -236,7 +242,8 @@ Any UML Model property whose  `Integer` or `Real` values may overflow the limits
 Any other UML Model property type is to be mapped to `TEXT`, with specific rules being defined on a case-by-case basis in each theme profile.
 
 ###### Properties with a `uom` attribute
-<!-- Status: uom is added as a separate property` -->
+
+![Implemented][implemented-shield]
 
 The unit of measurement attribute (`uom`) on any property `x` has to be retained.
 
@@ -246,33 +253,15 @@ The syntax and value space of the new property is the same of `gml:UomIdentifier
 The legal values of the new property are the literals of the data column constraint enum `GML_UomIdentifier`.
 This restriction may be enforced by SQL triggers or by code in applications that update GeoPackage data values.
 
-
 ##### ISO 19107 - Geometry types
-<!-- Status: implemented as `general rule ISO-19107 Geometry Types` -->
+
+![Implemented][implemented-shield]
 
 ISO 19107 defines a set of Geometry types, which need to be mapped to the types available in GeoPackage.
 
-**Table: ISO 19107 to GeoPackage datatype mapping.**
+In a GeoPackage, features are geolocated using a geometry subset of the [SQL/MM (ISO 13249-3)](https://www.iso.org/standard/53698.html).
 
-| ISO 19107 type | GeoPackage datatype | Conversion Notes |
-| ------ | ----- | ----- |
-| `GM_Aggregate` | `GEOMETRYCOLLECTION` | Core model
-| `GM_Curve` | `CURVE` | Non-linear geometry type extension
-| `GM_LineString`| `LINESTRING` | Core model
-| `GM_MultiCurve` | `MULTICURVE` | Non-linear geometry type extension
-| `GM_MultiLineString` | `MULTILINESTRING` | Core model
-| `GM_MultiPoint` | `MULTIPOINT` | Core model
-| `GM_MultiPrimitive` | `GEOMETRYCOLLECTION` | Core model
-| `GM_MultiSurface` | `MULTISURFACE` | Non-linear geometry type extension | `GM_Object` | `GEOMETRY` | Core model
-| `GM_Point` | `POINT` | Core model
-| `GM_Polygon` | `POLYGON` | Core model
-| `GM_Primitive` | `GEOMETRY` | Core model
-| `GM_Surface` | `SURFACE` | Non-linear geometry type extension
-| `GM_Triangle` | `POLYGON` | Core model
-
-**Note**: The table is not yet complete.
-
-implementers may constraint to a non-abstract subclass of the corresponding GeoPackage datatype if this datatype is abstact:
+The supported geometry model is as follows:
 
 - `GEOMETRY` (abstract) subtypes are `POINT`, `CURVE` (abstract), `SURFACE` (abstract) and `GEOMCOLLECTION`.
 - `CURVE` (abstract) subtypes are `LINESTRING`, `CIRCULARSTRING` and `COMPOUNDCURVE`.
@@ -282,20 +271,63 @@ implementers may constraint to a non-abstract subclass of the corresponding GeoP
 - `MULTICURVE` (abstract) subtype is `MULTILINESTRING`.
 - `MULTISURFACE` (abstract) subtype is `MULTIPOLYGON`.
 
-A data set cannot use the GeoPackage encoding rule as an alternative encoding rule if requres a geometry type that cannot be mapped to a type in the GeoPackage geometry model (either the [Core model](https://www.geopackage.org/spec121/#core_geometry_model_figure) or an extension such as the [Non-linear geometry type extension](https://www.geopackage.org/spec121/#extension_geometry_types)).
+The correspondence of concepts of this geometry subset with concepts of the geometry model of ISO 19107 are described in [ISO 19125-1:2004](https://www.iso.org/standard/40114.html).
+
+The tables below contain a the mapping of ISO 19107 used in INSPIRE UML models.
+
+**Table: ISO 19107 types used in models and its standard GeoPackage datatype mapping.**
+
+| ISO 19107 type | GeoPackage datatype | Allowed data values |
+| ------ | ----- | ----- |
+| `GM_Curve` | `CURVE` | `LINESTRING`, `CIRCULARSTRING` and `COMPOUNDCURVE`
+| `GM_MultiCurve` | `MULTICURVE` | `MULTILINESTRING`
+| `GM_MultiSurface` | `MULTISURFACE` | `MULTIPOLYGON`
+| `GM_Object` | `GEOMETRY` | Any
+| `GM_Point` | `POINT` | `POINT`
+| `GM_Polygon` | `POLYGON` | `POLYGON`
+| `GM_Surface` | `SURFACE` | `CURVEPOLYGON` and `POLYGON`
+
+**Table: ISO 19107 types used in models with non standard datatype mapping.**
+
+| Application Schema | ISO 19107 type | GeoPackage datatype | Conversion Notes |
+| -----| ------ | ----- | ----- |
+| Building 3D | `GM_Solid` | `BLOB` | Add the column `geometrySolid_content_type`. Store the 3D data in the column of type `BLOB` and specify the format in `geometrySolid_content_type`. [1]
+| ElevationTIN | `GM_Tin` | `BLOB` | Store the TIN encoded in WKB. [2]
+| Environmental Monitoring Facility | `GM_Boundary` | `POLYGON` | Used as type in `EnvironmentalMonitoringActivity.boundingBox`
+| Hydro - Physical Waters, Hydrogeology | `GM_Primitive` | `GEOMETRY` | Restricted to `POINT`, `CURVE` or `SURFACE` and their subtypes.
+
+[1] The GeoPackage specification does not support 3D data, but it is a established practice in GeoPackage to store any kind of content along its content type.
+The proposed mapping may imply the use of an `attribute table` instead of a `feature table` if the feature type has no additional geometry columns.
+
+[2] The GeoPackage specification does not mention Triangle (`GM_Triangle`), PolyhedralSurface (`GM_PolyhedralSurface`) or TIN (`GM_Tin`).
+However the GeoPackage geometry blob format is based on ISO WKB, and hence can represent these geometric objects.
+It is assumable that a future GeoPackage extension may include them as supported geometry types.
+The proposed mapping may imply the use of an `attribute table` instead of a `feature table` if the feature type has no additional geometry columns.
+
+![Implementation note][note-shield]
+
+If a specific dataset requires a geometry type that cannot be mapped to an instantiable type in the GeoPackage geometry model (either the [Core model](https://www.geopackage.org/spec121/#core_geometry_model_figure) or an extension such as the [Non-linear geometry type extension](https://www.geopackage.org/spec121/#extension_geometry_types)) and a standard encoding for the geometry is available, use the same strategy applied for `GM_Solid` for such dataset.
+
+In the GeoPackage 1.2.1 specification, `feature table` geometry columns shall contains geometries of the type or assignable for the type specified for the column in the `gpkg_geometry_columns` table.
+However, it is under consideration for the GeoPackage 1.3 specification to require to contain only geometries of the type.
+This can lead to changes in this encoding rule.
 
 ##### ISO 19108 - Temporal types
-<!-- Status: pending -->
+
+![Pending][pending-shield]
 
 For types from ISO 19108 used in INSPIRE schemas, suitable mappings need to be found on a case-by-case basis.
 
 ##### ISO 19115 - Metadata types
-<!-- Status: pending -->
+
+![Pending][pending-shield]
 
 For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be found on a case-by-case basis.
 
 ##### ISO 19139 - Metadata XML implementation types
-<!-- Status: implemented as `general rule ISO-19139 Metadata XML Implementation Types` -->
+
+![In progress][in-progress-shield]
+
 | ISO 19139 type | Attribute |  GeoPackage datatype | Constraints | Conversion Notes |
 | ------ | --- | ----- | ----- | ---- |
 | `LocalisedCharacterString` | _Content_ | `TEXT` | | If stored standalone uses a column named `text`.
@@ -306,11 +338,12 @@ For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be f
 | `URI` | | `TEXT` |  |
 
 ##### Flattening types
-<!-- Status: implemented as `flatten Data Types with upper cardinality of 1 but Identifier` -->
+
+![Implemented][implemented-shield]
 
 This rule flattens complex model structures.
 
-This enconding rule is appled to all `DataType` types (`B`) that are used as value type by the property `x` of a other type (`A`) but the data type `Identifier`.
+This encoding rule is applied to all `DataType` types (`B`) that are used as value type by the property `x` of a other type (`A`) but the data type `Identifier`.
 
 The property `x` in `A` is replaced with the content of `B`, i.e the type `B` is flattened when:
 
@@ -322,7 +355,7 @@ The process is as follows:
 
 - Each property `y` of `B` is copied into type `A` and then:
   - It is renamed to `x_y`.
-  - Its minimun multiplicity is the minimum of `x` and `y`.
+  - Its minimum multiplicity is the minimum of `x` and `y`.
   - The remaining characteristics of `x` are copied to it.
 - Next, the property `x` is removed from type `A`.
 
@@ -335,7 +368,8 @@ Where an abstract type with multiple concrete sub-types is used as a property ty
 As an example, limiting the potential geometry types in this way can make processing easier.
 
 ##### Union Types
-<!-- Status: implemented as `flatten union types` -->
+
+![Implemented][implemented-shield]
 
 This rule flattens `union` types.
 
@@ -357,7 +391,8 @@ The process is as follows:
 The restriction that exactly one of the properties of the type is present in any instance may be may be enforced by code in applications that update GeoPackage data values.
 
 ##### Enumerations
-<!-- Status: implemented as `general rule Enumeration Types` -->
+
+![Implemented][implemented-shield]
 
 All types that have the stereotype `<<enumeration>>` are converted to `GeoPackage data column constraints of type enum`.
 
@@ -374,7 +409,7 @@ The following table shows how to encode UML model enumeration literals as `gpkg_
 
 **Table: Mapping to Data Columns Constraints Table.**
 
-| UML Model concept | Colum Name | Colum Type | Column Description | Conversion Notes
+| UML Model concept | Column Name | Column Type | Column Description | Conversion Notes
 | ----------------- | ---------- | ---------- | ------------------ | ---
 | Enumeration       | `constraint_name` | `TEXT` | Name of constraint (lowercase) | Enumeration name in lowercase
 |                   | `constraint_type` | `TEXT` | `enum` |
@@ -404,20 +439,21 @@ INSERT INTO gpkg_data_columns(table_name, column_name, constraint_name)
 If required, specific rules being defined on a case-by-case basis in each theme profile.
 
 ##### Code Lists
-<!-- Status: implemented as `general rule CodeList Types` -->
+
+![Implemented][implemented-shield]
 
 The general rule for the stereotype `<<codeList>>` is the same as the enumerations rule.
 
 If required, specific rules being defined on a case-by-case basis in each theme profile.
 
 ##### Voidable
-<!-- Status: implemented as `voidable properties have a min cardinality of 0` -->
+
+![Implemented][implemented-shield]
 
 If a property has exactly a cardinality of `1` but has the stereotype `<<voidable>>`, it is mapped to a `column` that allows `null` values.
 
 Remaining uses of the stereotype `<<voidable>>` in properties are ignored.
 
-<!-- Status: implemented as `load authoritative descriptions of the reasons for void values as metadata` -->
 Authoritative descriptions of the reasons for void values in the INSPIRE Registry ([VoidReasonValue code list](http://inspire.ec.europa.eu/codelist/VoidReasonValue)) are encoded using the metadata extension as follows:
 
 **Table: Records in gpkg_metadata.**
@@ -430,7 +466,8 @@ Authoritative descriptions of the reasons for void values in the INSPIRE Registr
 | `4` | `attributeType` | `http://www.isotc211.org/2005/gmd` | `text/xml` | Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Withheld/Withheld.en.iso19135xml`
 
 #### Properties
-<!-- Status: implemented as `properties with maximum cardinality 1 to columns` -->
+
+![Implemented][implemented-shield]
 
 If a property has an maximum cardinality of `1`, it is mapped to a `column`.
 The column name is the same as the property.
@@ -460,28 +497,29 @@ INSERT INTO AdministrativeBoundary(..., technicalStatus)
 ```
 
 ##### Arrays
-<!-- Status: pending -->
+
+![Pending][pending-shield]
 
 Property types for properties with a cardinality greater than `1` and a simple property type (e.g. String, Integer, Float, ...) may use arrays of these simple types.
 
-<!-- Status: pending -->
+Property types for properties with a cardinality greater than `1` and an enumeration or code list are implemented similar to `N:M` association roles.
 
-Property types for properties with a cardinality greater than `1` and an enumeration or codelist are implemented similar to `N:M` association roles.
+![Implemented][implemented-shield]
 
-<!-- Status: implemented as `create supporting Attribute tables for Enumerations and Codelists involved in arrays` -->
-For each distinct enumeration or codelist involved in an array in the model is created a supporting `Attributes` table named as the enumeration or codelist with the following structure:
+For each distinct enumeration or code list involved in an array in the model is created a supporting `Attributes` table named as the enumeration or code list with the following structure:
 
-**Table: Structure of a supporting Attribute table for an enumeration or codelist.**
+**Table: Structure of a supporting Attribute table for an enumeration or code list.**
 
 | Column name | Type | Description | Null | Constraint
 | ----------- | ---- | ----------- | ---- | ---------  
 | `id`| `INTEGER` | Autoincrement primary key | no | PK
-| `value` | `TEXT` | Enumeration or codelist literal | no | ENUM
+| `value` | `TEXT` | Enumeration or code list literal | no | ENUM
 
 The literal values of  the `value` column are constrained by the corresponding `GeoPackage data column constraint of type enum`.
 
 #### Association Roles
-<!-- Status: general rule for association roles and arrays -->
+
+![Implemented][implemented-shield]
 
 `N:M` association roles are implemented as `GeoPackage Related Tables`.
 The mapping table of an `N:M` association role is implemented as a table.
@@ -500,7 +538,8 @@ SELECT id, inspireId FROM AU_AdministrativeBoundary;
 Creates the mapping table of the `1:1` relationship between `AdministrativeBoundary` and `Inspire`.
 
 #### Naming modification
-<!-- Status: implemented as `default application schema prefixes` -->
+
+![Implemented][implemented-shield]
 
 This rule can be used to modify the names of specific model elements in the application schema.
 
@@ -516,16 +555,17 @@ The name of the `relation table` is as follows:
 - If the relation is mandatory only for one side, this side provides the name of the relation (e.g `Condominium_admUnit`).
 - If the relation is mandatory for both sides, the name is the roles of the relation separated by an underscore (`_`) (e.g. `boundary_admUnit`).
 
-These names may be prefixed to avoid name colision when multiple application schemas are stored in the same GeoPackage. The prefix is the namespace prefix to be used as short form of the XML namespace of the application schema in uppercase, with hyphens (`-`) replaced by underscores (`_`) plus an underscore added at the end (e.g. `TN_RO_` is the prefix for contents from the application schema `Transport Network Roads` because `tn-ro` is its namespace prefix).
+These names may be prefixed to avoid name collision when multiple application schemas are stored in the same GeoPackage. The prefix is the namespace prefix to be used as short form of the XML namespace of the application schema in uppercase, with hyphens (`-`) replaced by underscores (`_`) plus an underscore added at the end (e.g. `TN_RO_` is the prefix for contents from the application schema `Transport Network Roads` because `tn-ro` is its namespace prefix).
 
-Other entities encoded in the GeoPacckage that have an inmplementation in a well known XML namespace may use a similar strategy (e.g. `GMD_` for contents that have an implementation in _Geographic MetaData_ (`gmd`)) .
+Other entities encoded in the GeoPackage that have an implementation in a well known XML namespace may use a similar strategy (e.g. `GMD_` for contents that have an implementation in _Geographic MetaData_ (`gmd`)) .
 
 ### Dataset Encoding Rule
 
 This section describes additional rules when a specific dataset is encoded into the model converted to GeoPackage.
 
 #### Character Encoding
-<!-- Status: data insertion rule -->
+
+![Tested][tested-shield]
 
 The character encoding of all `TEXT` encoding in GeoPackage shall be UTF-8 or UTF-16.
 
@@ -534,7 +574,8 @@ The SQLite API contains functions which allow passing and retrieving text using 
 These functions can be freely mixed and proper conversions are performed transparently when necessary.
 
 #### Coordinate Reference Systems
-<!-- Status: data insertion rule -->
+
+![Tested][tested-shield]
 
 A GeoPackage shall include a `gpkg_spatial_ref_sys` table that contains CRS definitions to relate data in user tables to location on the earth.
 The CRS definitions conforms to:
@@ -565,7 +606,8 @@ WKT1 and WKT2 representations can be obtained with the use of tools such as [`gd
 The `gpkg_spatial_ref_sys` table of an INSPIRE GeoPackage may contain all the default CRS from the Table 1.
 
 #### Void values information
-<!-- Status: data insertion rule -->
+
+![Tested][tested-shield]
 
 Void reason value information may be encoded as metadata and related to specific features in a GeoPackage.
 
@@ -621,6 +663,8 @@ This section describes additional rules that allows to transform a specific data
 
 ### Unpopulated Features
 
+![Tested][tested-shield]
+
 Feature tables and views with 0 rows must be dropped.
 The dependent attribute tables and views must be also dropped.
 
@@ -628,11 +672,15 @@ This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_g
 
 ### Unpopulated Many-to-many Relations
 
+![Tested][tested-shield]
+
 Table relations tagged in `gpkg_metadata_reference` as `unpopulated` at `table` level must be dropped.
 
 This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_data_columns`, `gpkg_metadata_reference`, `gpkgext_relations` and `gpkg_extensions`.
 
 ### Unpopulated Columns
+
+![Tested][tested-shield]
 
 Columns tagged in `gpkg_metadata_reference` as `unpopulated` at `column` level must be dropped.
 
@@ -640,17 +688,24 @@ This implies also to remove rows that reference them in `gpkg_data_columns` and 
 
 ### Implicit One-to-one Relations to Data Types
 
-This rule is performed iterativelly until no more candidates can be transformed.
+![Tested][tested-shield]
+
+This rule is performed iteratively until no more candidates can be transformed.
 
 The steps are:
 
 1. Candidates are table relations that in the dataset behaves effectively as a 0:1 or 1:1 relationship instead of 1:N or N:M where one side was a `<<dataType>>` in the conceptual model and it is a simple table (henceforth, source table).
-1. Source tables are flattened following the [Flattening types](#flattening-types) rule as if the maximum cardinality of the relation is `1`.
+2. Source tables are flattened following the [Flattening types](#flattening-types) rule as if the maximum cardinality of the relation is `1`.
 The description of the columns affected in `gpkg_data_columns` is updated with to reflect the new `table_name` and new `column_name`.
 Content is copied from the columns of source table to the columns target table using the mapping information of the table relation.
-1. Candidates are now table relations that in the dataset behaves effectively as a 0:1 or 1:1 relationship instead of 1:N or N:M where one side was a `<<dataType>>` in the conceptual model and it is now a simple table after a flattening.
-1. If there are candidates, go to the step `2`.
-1. Otherwise, there are no more tables that can be flattened. Next the candidate relations and source tables used during the iterations must be dropped if they only participated in the flattened relations.
+3. Candidates are now table relations that in the dataset behaves effectively as a 0:1 or 1:1 relationship instead of 1:N or N:M where one side was a `<<dataType>>` in the conceptual model and it is now a simple table after a flattening.
+4. If there are candidates, go to the step `2`.
+5. Otherwise, there are no more tables that can be flattened. Next the candidate relations and source tables used during the iterations must be dropped if they only participated in the flattened relations.
 This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_data_columns`, `gpkgext_relations` and `gpkg_extensions`.
 
 [development-shield]: https://img.shields.io/badge/-development%20version-red?style=flat
+[implemented-shield]: https://img.shields.io/badge/status-implemented-brightgreen
+[tested-shield]: https://img.shields.io/badge/status-tested-brightgreen
+[in-progress-shield]: https://img.shields.io/badge/status-in%20progress-yellow
+[pending-shield]: https://img.shields.io/badge/status-pending-red
+[note-shield]: https://img.shields.io/badge/-Implementation%20note:-important
