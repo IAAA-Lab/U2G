@@ -29,7 +29,7 @@
       - [ISO 19108 - Temporal types](#iso-19108---temporal-types)
       - [ISO 19115 - Metadata types](#iso-19115---metadata-types)
       - [ISO 19139 - Metadata XML implementation types](#iso-19139---metadata-xml-implementation-types)
-      - [Flattening types](#flattening-types)
+      - [Flattening of nested structures](#flattening-of-nested-structures)
       - [Abstract Types as property types](#abstract-types-as-property-types)
       - [Union Types](#union-types)
       - [Enumerations](#enumerations)
@@ -337,29 +337,31 @@ For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be f
 | |`country` | `TEXT`| Enum constraint `GMD_CountryCode`
 | `URI` | | `TEXT` |  |
 
-##### Flattening types
+##### Flattening of nested structures
 
-![Implemented][implemented-shield]
+![MT001][mt001-shield] ![Implemented][implemented-shield]
 
-This rule flattens complex model structures.
+The complex structure of model elements are reduced by applying a recursive flattening method.
+The principle of the flattening is to derive a flat model structure by moving the nested child elements to its parent.
+The elements are renamed to represent the former element path in the name of the resulting element and to avoid naming conflicts.
+The cardinality of the derived elements should be calculated from the cardinalities of the former element path.
+The remaining properties of the original element must be copied to the derived elements.
 
-This encoding rule is applied to all `DataType` types (`B`) that are used as value type by the property `x` of a other type (`A`) but the data type `Identifier`.
+This model transformation rule does not handle cardinalities greater than 1.
 
-The property `x` in `A` is replaced with the content of `B`, i.e the type `B` is flattened when:
+**Model transformation rule:**
+This rule flatten properties with maximum occurrence of 1 which whose type has not been already mapped to a GeoPackage type (e.g. ISO 19107 geometric types), it is not a `<<union>>`, `<<codeList>>` or `<<enumeration>>`, or is the base type `Identifer`.
 
-- the value type of property `x` of type `A` is `B`.
-- the maximum multiplicity of the property `x` is `1`.
-- the maximum multiplicity of the properties of the type `B` is `1`.
+Recursively go down through the complex model structure as follows.
+Given a candidate property `x` of type `B` in a class `A` that can be flattened, it is replaced by the properties of the class `B` as follows:
 
-The process is as follows:
+- Each property `y` of `B` is copied into class `A` and then:
+  - The new property is renamed to `x_y`.
+  - The minimum multiplicity mew property is the minimum of the minimum multiplicities of `x` and `y`.
+  - The remaining characteristics of the property `x` are copied to the new property.
+- Finally, the property `x` is removed from type `A`.
 
-- Each property `y` of `B` is copied into type `A` and then:
-  - It is renamed to `x_y`.
-  - Its minimum multiplicity is the minimum of `x` and `y`.
-  - The remaining characteristics of `x` are copied to it.
-- Next, the property `x` is removed from type `A`.
-
-This rule is also applied to the type `PT_Locale` so `languageCode`, `characterSetCode`, and `country` are added as separate properties.
+This process is performed recursively until the rule can no longer be applied.
 
 ##### Abstract Types as property types
 
@@ -709,3 +711,4 @@ This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_d
 [in-progress-shield]: https://img.shields.io/badge/status-in%20progress-yellow
 [pending-shield]: https://img.shields.io/badge/status-pending-red
 [note-shield]: https://img.shields.io/badge/-Implementation%20note:-important
+[mt001-shield]: https://img.shields.io/badge/MT001-Flattening%20of%20nested%20structures-blue
