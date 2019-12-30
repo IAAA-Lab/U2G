@@ -32,8 +32,7 @@
       - [Flattening of nested structures](#flattening-of-nested-structures)
       - [Abstract Types as property types](#abstract-types-as-property-types)
       - [Union Types](#union-types)
-      - [Enumerations](#enumerations)
-      - [Code Lists](#code-lists)
+      - [Enumerations and Code lists](#enumerations-and-code-lists)
       - [Voidable](#voidable)
     - [Properties](#properties)
       - [Extract primitive array](#extract-primitive-array)
@@ -126,7 +125,7 @@ The encoding uses the [OGC® GeoPackage Encoding Standard - with Corrigendum ver
 
 - [GeoPackage Non-Linear Geometry Types](http://www.geopackage.org/spec121/#extension_geometry_types)
 - [Metadata](http://www.geopackage.org/spec121/#extension_metadata)
-- [Schema](http://www.geopackage.org/spec121/#extension_schema)
+- [Schema][gpkg-ext-schema]
 - [Related Tables Extension](http://docs.opengeospatial.org/is/18-000/18-000.html)
 - [WKT for Coordinate Reference Systems](http://www.geopackage.org/spec121/#extension_crs_wkt)
 
@@ -392,61 +391,50 @@ The process is as follows:
 
 The restriction that exactly one of the properties of the type is present in any instance may be may be enforced by code in applications that update GeoPackage data values.
 
-##### Enumerations
+##### Enumerations and Code lists
 
-![Implemented][implemented-shield]
+![MT008][mt008-shield] ![Implemented][implemented-shield]
 
-All types that have the stereotype `<<enumeration>>` are converted to `GeoPackage data column constraints of type enum`.
+The use of enumeration values and references to code lists are common in the INSPIRE data specifications.
+An enumeration is a fixed list of possible values.
+A code list is a extendable list of possible values.
+They are represented using properties whose type is the class with the stereotype `<<enumeration>>` and `<<codeList>>`.
 
-The [schema extension](https://www.geopackage.org/spec121/#extension_schema) provides a means to describe the columns of tables in a GeoPackage with more detail than can be captured by the SQL table definition directly.
+The [schema extension][gpkg-ext-schema] provides a means to describe the columns of tables in a GeoPackage with more detail than can be captured by the SQL table definition directly.
+The `gpkg_data_columns` table contains descriptive information about columns in tables.
+The `gpkg_data_column_constraints` table contains data to specify restrictions on basic data type column values.
 
-Any UML Model property whose type is an enumeration  with maximum cardinality of '1' should be mapped to a `TEXT` column with an enumeration constraint.
+This encoding rule uses the above extension and creates a column enum constraint associated to each list in the conceptual model, records its allowed values as column constraints, provides a link to an external definition, and uses human readable values in property values.
 
-Greater cardinalities are discussed in the section about arrays.
+**Model transformation rule:**
+> This rule transforms classes with the stereotype `<<codeList>>` or `<<enumeration>>` to GeoPackage data column constraints table of type `enum`.
+>
+> Given a class with the stereotype `<<enumeration>>`, a row is added to the `gpkg_data_column_constraints` for each possible value of the code list.
+> This row contains:
+>
+> - In the column `constraint_name`, the name of the class in lowercase.
+> - In the column `constraint_type`, the string `"enum"`.
+> - In the column `value`, the value.
+> - In the column `description`, a URI that points to a description of the value, usually `"http://inspire.ec.europa.eu/enumeration/<class_name>/<value>"`.
+>
+> Given a class with the stereotype `<<codeList>>`, a row is added to the `gpkg_data_column_constraints` for each possible value of the code list.
+> This row contains:
+>
+> - In the column `constraint_name`, the name of the class in lowercase.
+> - In the column `constraint_type`, the string `"enum"`.
+> - In the column `value`, the value.
+> - In the column `description`, a URI that points to a description of the value, usually `"http://inspire.ec.europa.eu/codelist/<class_name>/<value>"`.
+>
+> Given a property with maximum cardinality of 1 that references an enumeration or code list.
+>
+> - The type of the property is mapped to `TEXT`.
+> - The corresponding row of the `gpkg_data_columns` that describes the column that implements such property (identified by the coordinates `table_name`, `column_name`) has in the column `constraint_name` the name of the enumeration or the code list in lowercase.
+>
+> The encoding of higher cardinalities is discussed in [extract primitive array](#extract-primitive-array).
 
-The restriction is of the column is specified in the table `gpkg_data_columns`.
-The values are specified in the table `gpkg_data_column_constraints`.
+![Implementation note][note-shield]
 
-The following table shows how to encode UML model enumeration literals as `gpkg_data_column_constraints` rows.
-
-**Table: Mapping to Data Columns Constraints Table.**
-
-| UML Model concept | Column Name | Column Type | Column Description | Conversion Notes
-| ----------------- | ---------- | ---------- | ------------------ | ---
-| Enumeration       | `constraint_name` | `TEXT` | Name of constraint (lowercase) | Enumeration name in lowercase
-|                   | `constraint_type` | `TEXT` | `enum` |
-| Enumeration literal | `value` | `TEXT`      | Case sensitive value |
-|                   | `description` | `TEXT`  |  Describes the enumeration literal | The URI of the enumeration value in the INSPIRE Registry
-
-**Example:** The example shows the SQL statements that encodes the `TechnicalStatusValue` enumeration used as type of the property `technicalStatus` of the feature type `AdmnistrativeBoundary`, and its literal values. The URI of the enumeration value in the INSPIRE Enumeration Registry can be derived from the names of the enumeration and the enumeration literal.
-
-```sql
-CREATE TABLE AdministrativeBoundary(..., technicalStatus TEXT default 'edgeMatched');
-INSERT INTO gpkg_data_column_constraints(constraint_name, constraint_type, value, description)
-    VALUES ('technicalstatusvalue',
-            'enum',
-            'edgeMatched',
-            'http://inspire.ec.europa.eu/enumeration/TechnicalStatusValue/edgeMatched');
-INSERT INTO gpkg_data_column_constraints(constraint_name, constraint_type, value, description)
-    VALUES ('technicalstatusvalue',
-            'enum',
-            'notEdgeMatched',
-            'http://inspire.ec.europa.eu/enumeration/TechnicalStatusValue/notEdgeMatched');
-INSERT INTO gpkg_data_columns(table_name, column_name, constraint_name)
-    VALUES ('AdministrativeBoundary',
-            'technicalStatus',
-            'technicalstatusvalue');
-```
-
-If required, specific rules being defined on a case-by-case basis in each theme profile.
-
-##### Code Lists
-
-![Implemented][implemented-shield]
-
-The general rule for the stereotype `<<codeList>>` is the same as the enumerations rule.
-
-If required, specific rules being defined on a case-by-case basis in each theme profile.
+This rule extends [MT008 - Simplified Codelist Reference](https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/SimpleCodelistReference.md) to enumerations.
 
 ##### Voidable
 
@@ -500,7 +488,7 @@ INSERT INTO AdministrativeBoundary(..., technicalStatus)
 
 ##### Extract primitive array
 
-![MT001][mt002-shield] ![Implemented][implemented-shield]
+![MT002][mt002-shield] ![Implemented][implemented-shield]
 
 The values of a simple high-cardinality property can be encoded by concatenating the values ​​in a string separated by a delimiter.
 
@@ -715,5 +703,9 @@ This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_d
 [in-progress-shield]: https://img.shields.io/badge/status-in%20progress-yellow
 [pending-shield]: https://img.shields.io/badge/status-pending-red
 [note-shield]: https://img.shields.io/badge/-Implementation%20note:-important
+
 [mt001-shield]: https://img.shields.io/badge/MT001-Flattening%20of%20nested%20structures-blue
 [mt002-shield]: https://img.shields.io/badge/MT002-Extract%20primitive%20array-blue
+[mt008-shield]: https://img.shields.io/badge/MT008-Simplified%20codelist%20reference-blue
+
+[gpkg-ext-schema]: http://www.geopackage.org/spec121/#extension_schema
