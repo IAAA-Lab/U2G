@@ -36,7 +36,7 @@
       - [Code Lists](#code-lists)
       - [Voidable](#voidable)
     - [Properties](#properties)
-      - [Arrays](#arrays)
+      - [Extract primitive array](#extract-primitive-array)
     - [Association Roles](#association-roles)
     - [Naming modification](#naming-modification)
   - [Dataset Encoding Rule](#dataset-encoding-rule)
@@ -350,18 +350,18 @@ The remaining properties of the original element must be copied to the derived e
 This model transformation rule does not handle cardinalities greater than 1.
 
 **Model transformation rule:**
-This rule flatten properties with maximum occurrence of 1 which whose type has not been already mapped to a GeoPackage type (e.g. ISO 19107 geometric types), it is not a `<<union>>`, `<<codeList>>` or `<<enumeration>>`, or is the base type `Identifer`.
-
-Recursively go down through the complex model structure as follows.
+> This rule flatten properties with maximum occurrence of 1 which whose type has not been already mapped to a GeoPackage type (e.g. ISO 19107 geometric types), it is not a `<<union>>`, `<<codeList>>` or `<<enumeration>>`, or is the base type `Identifer`.
+>
+> Recursively go down through the complex model structure as follows.
 Given a candidate property `x` of type `B` in a class `A` that can be flattened, it is replaced by the properties of the class `B` as follows:
-
-- Each property `y` of `B` is copied into class `A` and then:
-  - The new property is renamed to `x_y`.
-  - The minimum multiplicity mew property is the minimum of the minimum multiplicities of `x` and `y`.
-  - The remaining characteristics of the property `x` are copied to the new property.
-- Finally, the property `x` is removed from type `A`.
-
-This process is performed recursively until the rule can no longer be applied.
+>
+> - Each property `y` of `B` is copied into class `A` and then:
+>   - The new property is renamed to `x_y`.
+>   - The minimum multiplicity mew property is the minimum of the minimum multiplicities of `x` and `y`.
+>   - The remaining characteristics of the property `x` are copied to the new property.
+> - Finally, the property `x` is removed from type `A`.
+>
+> This process is performed recursively until the rule can no longer be applied.
 
 ##### Abstract Types as property types
 
@@ -498,26 +498,30 @@ INSERT INTO AdministrativeBoundary(..., technicalStatus)
     VALUES (..., 'notEdgeMatched');
 ```
 
-##### Arrays
+##### Extract primitive array
 
-![Pending][pending-shield]
+![MT001][mt002-shield] ![Implemented][implemented-shield]
 
-Property types for properties with a cardinality greater than `1` and a simple property type (e.g. String, Integer, Float, ...) may use arrays of these simple types.
+The values of a simple high-cardinality property can be encoded by concatenating the values ​​in a string separated by a delimiter.
 
-Property types for properties with a cardinality greater than `1` and an enumeration or code list are implemented similar to `N:M` association roles.
+**Model transformation rule:**
+> This rule transforms properties with maximum occurrence greater than 1 that has a known mapping to any GeoPackage data type except `BLOB` or geometry type.
+>
+> Given a candidate property `x` of type `B` in a class `A`, it is updated as follows:
+>
+> - The type of the property `x` is updated to `TEXT`.
+> - The maximum multiplicity is updated to 1.
+> - Remove of the property `x`, if exists, any `GeoPackage data column constraint` associated.
+> - The name of the property `x` is pluralized (e.g. `type` to `types`, `activity` to `activities`).
 
-![Implemented][implemented-shield]
+**Instance transformation rule:**
+> Values are encoded as a JSON array.
+> The SQLite [json1 extension](https://www.sqlite.org/json1.html) allows applications to manage JSON content stored in a GeoPackage.
 
-For each distinct enumeration or code list involved in an array in the model is created a supporting `Attributes` table named as the enumeration or code list with the following structure:
+![Implementation note][note-shield]
 
-**Table: Structure of a supporting Attribute table for an enumeration or code list.**
-
-| Column name | Type | Description | Null | Constraint
-| ----------- | ---- | ----------- | ---- | ---------  
-| `id`| `INTEGER` | Autoincrement primary key | no | PK
-| `value` | `TEXT` | Enumeration or code list literal | no | ENUM
-
-The literal values of  the `value` column are constrained by the corresponding `GeoPackage data column constraint of type enum`.
+The pluralization of the name of the property is a marker to remember the expected content.
+Content constraints in extracted primitive arrays may be implemented with SQL triggers in **Extended GeoPackages**.
 
 #### Association Roles
 
@@ -712,3 +716,4 @@ This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_d
 [pending-shield]: https://img.shields.io/badge/status-pending-red
 [note-shield]: https://img.shields.io/badge/-Implementation%20note:-important
 [mt001-shield]: https://img.shields.io/badge/MT001-Flattening%20of%20nested%20structures-blue
+[mt002-shield]: https://img.shields.io/badge/MT002-Extract%20primitive%20array-blue
