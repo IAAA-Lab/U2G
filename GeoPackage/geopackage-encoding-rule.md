@@ -34,6 +34,9 @@
       - [Union Types](#union-types)
       - [Enumerations and Code lists](#enumerations-and-code-lists)
       - [Voidable](#voidable)
+    - [Alternate Structures for specific types or type hierarchies](#alternate-structures-for-specific-types-or-type-hierarchies)
+      - [Simplified Geographic Name](#simplified-geographic-name)
+      - [Simplified Citation](#simplified-citation)
     - [Properties](#properties)
       - [Extract primitive array](#extract-primitive-array)
     - [Association Roles](#association-roles)
@@ -323,9 +326,17 @@ For types from ISO 19108 used in INSPIRE schemas, suitable mappings need to be f
 
 For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be found on a case-by-case basis.
 
+**Table: ISO 19115 to GeoPackage datatype mapping.**
+
+| ISO 19115 type | Attribute |  GeoPackage datatype | Constraints | Conversion Notes |
+| ------ | --- | ----- | ----- | ---- |
+| `URL` | | `TEXT`  |  |
+
 ##### ISO 19139 - Metadata XML implementation types
 
 ![In progress][in-progress-shield]
+
+**Table: ISO 19139 to GeoPackage datatype mapping.**
 
 | ISO 19139 type | Attribute |  GeoPackage datatype | Constraints | Conversion Notes |
 | ------ | --- | ----- | ----- | ---- |
@@ -334,11 +345,11 @@ For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be f
 | `PT_Locale` | `languageCode` | `TEXT` | `NOT NULL`, Enum constraint `GMD_LanguageCode`
 | |`characterSetCode` | `TEXT`| Enum constraint `MD_CharacterSetCode`
 | |`country` | `TEXT`| Enum constraint `GMD_CountryCode`
-| `URI` | | `TEXT` |  |
+| `URI` | | `TEXT`  |  |
 
 ##### Flattening of nested structures
 
-![MT001][mt001-shield] ![Implemented][implemented-shield]
+[![MT001][mt001-shield]][mt001] ![Implemented][implemented-shield]
 
 The complex structure of model elements are reduced by applying a recursive flattening method.
 The principle of the flattening is to derive a flat model structure by moving the nested child elements to its parent.
@@ -393,7 +404,7 @@ The restriction that exactly one of the properties of the type is present in any
 
 ##### Enumerations and Code lists
 
-![MT008][mt008-shield] ![Implemented][implemented-shield]
+[![MT008][mt008-shield]][mt008] ![Implemented][implemented-shield]
 
 The use of enumeration values and references to code lists are common in the INSPIRE data specifications.
 An enumeration is a fixed list of possible values.
@@ -434,7 +445,7 @@ This encoding rule uses the above extension and creates a column enum constraint
 
 ![Implementation note][note-shield]
 
-This rule extends [MT008 - Simplified Codelist Reference](https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/SimpleCodelistReference.md) to enumerations.
+This rule extends [MT008 - Simplified Codelist Reference][mt008] to enumerations.
 
 ##### Voidable
 
@@ -454,6 +465,84 @@ Authoritative descriptions of the reasons for void values in the INSPIRE Registr
 | `2` | `attributeType` | `http://www.isotc211.org/2005/gmd` | `text/xml`| Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated/Unpopulated.en.iso19135xml`
 | `3` | `attribute`  | `http://www.isotc211.org/2005/gmd`| `text/xml` | Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Withheld/Withheld.en.iso19135xml`  
 | `4` | `attributeType` | `http://www.isotc211.org/2005/gmd` | `text/xml` | Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Withheld/Withheld.en.iso19135xml`
+
+#### Alternate Structures for specific types or type hierarchies
+
+##### Simplified Geographic Name
+
+[![MT005][mt005-shield]][mt005] ![Implemented][implemented-shield]
+
+Geographical Names are re-used throughout more than 20 INSPIRE themes overall.
+For many existing data sets, the `<<data type>>` `GeographicalName`  is over specified, with very little information being unique to each instance.
+
+`GeographicalName` is easy to implement in GeoPackage after applying [Flattening of nested structures](#flattening-of-nested-structures).
+However, the one-to-many relationship of `GeographicalName` and `SpellingOfName`, where is the key `text` property, may cause usability problems.
+`SpellingOfName` has tree properties, the `text` which is the way the name is written, the `<<voidable>>` `script` which is the set of graphic symbols employed in writing the name, and the `<<voidable>>` optional `transliterationScheme`.
+
+GeoPackage uses Unicode for storing text, so the `script` value is implicitly encoded in the `text` for most of the cases (see [comparison of ISO 15924 script codes and Unicode](https://en.wikipedia.org/wiki/Script_(Unicode))).
+The `transliterationScheme` is only relevant in a linguistic context.
+
+The general transformation rule [MT005 Simplified Geographical Name][mt005] proposes a simplified alternative representation for `GeographicalNames` when it is used by other INSPIRE themes. This transformation only retains two properties: `language` and `spelling.text`.
+
+The simplified geographical name adds minimal information with the new `<<datatype>>` `SimpleGeographicalName` that has two properties:
+
+- `spelling_text: CharacterString`, which is encoded in Unicode.
+- `language: <<voidable>> CharacterString [0..1]`.
+
+The rationale for adopting for the GeoPackage encoding this model transformation is to ease the use of names.
+
+**Model transformation rule:**
+> This rule replaces the uses of the class `GeographicalName` in application schemas different from Geographical Names.
+>
+> - Create the `<<dataType>>` `SimpleGeographicalName` in the package `Base Types 2`.
+> - Substitute existing uses of `GeographicalName`  in application schemas different from Geographical Names.
+
+![Implementation note][note-shield]
+
+If an implementer requires more information, it may:
+
+- document defaults in the dataset metadata if it is homogeneous.
+- extend the type `SimpleGeographicalName` with additional columns mapped to existing properties of the original `GeographicalName` type if it is heterogeneous.
+
+##### Simplified Citation
+
+[![MT007][mt007-shield]][mt007] ![Implemented][implemented-shield]
+
+Citations are used in many different places throughout the INSPIRE data specifications.
+ISO 19115 defines [CI_Citation](https://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=1:3:13:15:2739), which has a very deep structure.
+INSPIRE introduced two base types to simplify citations, [LegislationCitation and DocumentCitation](https://inspire.ec.europa.eu/data-model/approved/r4618-ir/html/index.htm?goto=3:2:2:9161).
+
+`CI_Citation`, `LegislationCitation` and `DocumentCitation` are easy to implement in GeoPackage after applying [Flattening of nested structures](#flattening-of-nested-structures) and [Extract primitive array](#extract-primitive-array).
+
+The general transformation rule [MT007 Simple Citation][mt007]  proposes a simplified alternative representation for `CI_Citation`, `LegislationCitation` and `DocumentCitation`.
+
+The rationale of [MT007 Simple Citation][mt007] is the overhead generated by deep structure of the citation structures.
+
+The simplified citation is based on a link to an external publication and adds minimal information as the new `<<datatype>>` `SimpleCitation` with five properties:
+
+- `name: CharacterString`, the official name of the document
+- `type: SimpleCitationType`, which is one of `CI_Citation`, `LegislationCitation` and `DocumentCitation` and indicates what kind of citation is represented
+- `level: LegislationLevelValue [0..1]`, the level at which the legislative document is adopted
+- `date: Date [0..1]`, date of creation, publication or revision of the document
+- `link: URL [0..1]`, link to an online version of the document
+
+The rationale for adopting for the GeoPackage encoding this model transformation is the unification of the citation structures.
+
+**Model transformation rule:**
+> This rule replaces the classes `CI_Citation`, `LegislationCitation` and `DocumentCitation` by the class `SimpleCitation`.
+>
+> - Create the `<<dataType>>` `SimpleCitation` in the package `Base Types 2`.
+> - Substitute existing uses of `CI_Citation`, `LegislationCitation` and `DocumentCitation` by `SimpleCitation`.
+
+**Instance transformation rule:**
+> The `type` value in an instance must be consistent with the replaced original type.
+
+![Implementation note][note-shield]
+
+If an implementer requires more citation information, it may:
+
+- extend the type `SimpleCitation` with additional columns mapped to existing properties of the original citation types.
+- implement `CI_Citation`, `LegislationCitation` and `DocumentCitation` and create a relation from the `SimpleCitation` to the corresponding citation.
 
 #### Properties
 
@@ -488,7 +577,7 @@ INSERT INTO AdministrativeBoundary(..., technicalStatus)
 
 ##### Extract primitive array
 
-![MT002][mt002-shield] ![Implemented][implemented-shield]
+[![MT002][mt002-shield]][mt002] ![Implemented][implemented-shield]
 
 The values of a simple high-cardinality property can be encoded by concatenating the values ​​in a string separated by a delimiter.
 
@@ -509,6 +598,7 @@ The values of a simple high-cardinality property can be encoded by concatenating
 ![Implementation note][note-shield]
 
 The pluralization of the name of the property is a marker to remember the expected content.
+
 Content constraints in extracted primitive arrays may be implemented with SQL triggers in **Extended GeoPackages**.
 
 #### Association Roles
@@ -706,6 +796,14 @@ This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_d
 
 [mt001-shield]: https://img.shields.io/badge/MT001-Flattening%20of%20nested%20structures-blue
 [mt002-shield]: https://img.shields.io/badge/MT002-Extract%20primitive%20array-blue
+[mt005-shield]: https://img.shields.io/badge/MT005-Simple%20geographic%20name-blue
+[mt007-shield]: https://img.shields.io/badge/MT007-Simple%20citation-blue
 [mt008-shield]: https://img.shields.io/badge/MT008-Simplified%20codelist%20reference-blue
+
+[mt001]: https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/GeneralFlattening.md
+[mt002]: https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/ExtractPrimitiveArray.md
+[mt005]: https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/SimpleGeographicName.md
+[mt007]: https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/SimpleCitation.md
+[mt008]: https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/SimpleCodelistReference.md
 
 [gpkg-ext-schema]: http://www.geopackage.org/spec121/#extension_schema
