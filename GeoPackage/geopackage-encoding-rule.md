@@ -19,6 +19,7 @@
 - [Terms and Definitions](#terms-and-definitions)
 - [Compliance Encoding Rule](#compliance-encoding-rule)
   - [Schema Conversion Rule](#schema-conversion-rule)
+    - [Application Schemas](#application-schemas)
     - [Types](#types)
       - [Feature types](#feature-types)
       - [Data Types](#data-types)
@@ -129,7 +130,7 @@ The encoding uses the [OGC® GeoPackage Encoding Standard - with Corrigendum ver
 - [GeoPackage Non-Linear Geometry Types](http://www.geopackage.org/spec121/#extension_geometry_types)
 - [Metadata](http://www.geopackage.org/spec121/#extension_metadata)
 - [Schema][gpkg-ext-schema]
-- [Related Tables Extension](http://docs.opengeospatial.org/is/18-000/18-000.html)
+- [Related Tables Extension][gpkg-ext-related]
 - [WKT for Coordinate Reference Systems](http://www.geopackage.org/spec121/#extension_crs_wkt)
 
 ### Technical Limitations
@@ -162,7 +163,7 @@ D2.7 also contains a relevant recommendation:
 This section contains references to standards documents and related resources.
 
 - [OGC® GeoPackage Encoding Standard - with Corrigendum version 1.2.1](https://www.geopackage.org/spec121/)
-- [OGC GeoPackage Related Tables Extension](http://docs.opengeospatial.org/is/18-000/18-000.html)
+- [OGC GeoPackage Related Tables Extension][geopackage-related]
 - [INSPIRE Drafting Team Data Specifications. D2.7: Guidelines for the encoding of spatial data, Version 3.3](http://inspire.ec.europa.eu/documents/guidelines-encoding-spatial-data)
 
 ## Terms and Definitions
@@ -174,15 +175,55 @@ Terms and Definitions can be found in the [Glossary](https://github.com/INSPIRE-
 ### Schema Conversion Rule
 
 INSPIRE defines the conceptual model using UML.
-
 The default encoding rule maps this UML model to XML Schema.
+
+In the GeoPackage encoding rule, we take a two-step approach, where we apply model transformations on the level of the conceptual model to transform INSPIRE constructs into conceptual GeoPackage constructs, and then we materialize these into a *GeoPackage template* per theme.
+
+Theme-specific GeoPackage Encoding Rules may provide a formal definition of the encoded data structures as normative SQL statements and abstract test suites.
+
+Executable test suites may use these to test the correctness of data elements (tables, columns, or values) and SQL constructs (views, constraints, or triggers).
 
 For GeoPackage, SQL queries to GeoPackage metadata tables (e.g. `gpkg_contents`, `gpkg_spatial_ref_sys`) can be used to perform simple validation on GeoPackages.  
 
-Theme-specific GeoPackage Encoding Rules may provide a formal definition of the encoded data structures as normative SQL statements and abstract test suites.
-Executable test suites will use these to test the correctness of data elements (tables, columns, or values) and SQL constructs (views, constraints, or triggers).
+#### Application Schemas
 
-In this encoding rule, we take a two-step approach, where we apply model transformations on the level of the conceptual model to transform INSPIRE constructs into conceptual GeoPackage constructs, and then we materialize these into a *GeoPackage template* per theme.
+![Implemented][implemented-shield]
+
+A `GeoPackage file` may encode one or more `<<applicationSchema>>` packages related to a spatial data theme.
+
+Deriving a `GeoPackage file` from application schemas implies the creation of SQL statements for `feature tables`, `attribute tables`, `user-defined mapping tables or views` and related metadata.
+
+The application schemas to be encoded may include references to types, enumerations and code lists defined in other packages in attributes and navigable associations, which in turn may include additional references.
+The process of inclusion of references is recursive and requires a stop criteria.
+The logical boundary of the encoding of an application schema is defined by the set of `<<featureTypes>>` defined in other packages that can be reached from items defined in the application schema.
+This criterium defines a tangible boundary where the GeoPackage file makes sense as transport file of a dataset defined by one or more application schema.
+
+Given a package `A` with the stereotype `<<applicationSchema>>`, its encoding as `GeoPackage file` must include:
+
+- Concrete spatial object types.
+- Concrete data types.
+- Enumerations and code lists.
+- Types, enumerations and code lists reachable recursively except those that can only be reached through a `<<featureType>>` defined in an `<<applicationSchema>>` different from `A`.
+
+References to `<<featureTypes>>` in the logical boundary are replaced by the type `Identifier`.
+This approach is similar to the role of `XLink` in the `GML` specification to implement referencing. 
+
+**Model transformation rule:**
+> Given a set `root` of `<<applicationSchema>>` packages, this rule determines which types are candidates to be encoded in a `GeoPackage file`.
+>
+> 1. Let `GeoPackage` be the set that contains all `<<featureType>>`, `<<dataType>>`, `<<union>>`, `<<codeList>>` and `<<enumeration>>` found in packages of  `root`.
+> 2. Let `Boundary` be an empty set.
+> 3. Let `Frontier` be the set of the types referenced by means of attributes and associations, local or inherited, of elements of the set of `GeoPackage` not included in the set `GeoPackage`.
+> 4. If `Frontier` is not empty:
+>
+>    1. Add the elements of the `Frontier` bearing the stereotype `<<featureType>>` to `Boundary`.
+>    2. Add the remaining elements of `Frontier` to `GeoPackage`.
+>    3. Go to step `3`.
+>
+> 5. For each `item` in `GeoPackage` do:
+>
+>    1. Replace each reference of `item` to a type in `Frontier`  by the type `Identifier`.
+> 6. The set `GeoPackage` contains the items to be encoded using this rule.
 
 #### Types
 
@@ -807,3 +848,4 @@ This implies also to remove rows that reference them in `gpkg_contents`, `gpkg_d
 [mt008]: https://github.com/INSPIRE-MIF/2017.2/blob/master/model-transformations/SimpleCodelistReference.md
 
 [gpkg-ext-schema]: http://www.geopackage.org/spec121/#extension_schema
+[gpkg-ext-related]: http://docs.opengeospatial.org/is/18-000/18-000.html
