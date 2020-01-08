@@ -30,6 +30,7 @@
       - [ISO 19108 - Temporal types](#iso-19108---temporal-types)
       - [ISO 19115 - Metadata types](#iso-19115---metadata-types)
       - [ISO 19139 - Metadata XML implementation types](#iso-19139---metadata-xml-implementation-types)
+      - [Other types](#other-types)
       - [Flattening of nested structures](#flattening-of-nested-structures)
       - [Abstract Types as property types](#abstract-types-as-property-types)
       - [Union Types](#union-types)
@@ -260,21 +261,20 @@ The exact mapping from the UML model to the [GeoPackage datatypes](https://www.g
 | UML Model property type | GeoPackage datatype | SQLite storage class | Conversion Notes |
 | ------ | ----- | ----- | ----- |
 | `CharacterString` | `TEXT` | `TEXT` | Unicode [1]
-| `Boolean` | `BOOLEAN` | `INTEGER` | 0 for false and 1 for true |
-| `Number` | `TEXT`| `TEXT`| Abstract base type for all number [2]
-| `Integer` | `INTEGER` | `INTEGER` | 64-bit signed integer  |
-| `Real` | `REAL` | `REAL` | 64-bit IEEE floating point number  |
-| `Decimal` | `TEXT` | `TEXT` | Number with a decimal point and/or an exponent [2] |
-| `DateTime` | `DATETIME` | `TEXT` | ISO-8601 date/time in UTC strings `YYYY-MM-DDTHH:MM:SS.SSSZ` |
+| `URI` | `TEXT` | `TEXT` | Unicode
+| `Boolean` | `BOOLEAN` | `INTEGER` | 0 for false and 1 for true
+| `Integer` | `INTEGER` | `INTEGER` |
+| `Real` | `REAL` | `REAL` |  
+| `Number` | `REAL`| `REAL`| Alternative encoding [2]
+| `Decimal` | `REAL` | `REAL` |
 | `Date` | `DATE` | `TEXT` | ISO8601 date strings `YYYY-MM-DD`. |
+| `DateTime` | `DATETIME` | `TEXT` | ISO-8601 date/time in UTC strings `YYYY-MM-DDTHH:MM:SS.SSSZ` |
 
 [1] SQLite stores all text as Unicode characters encoded using either UTF-8 or UTF-16 encoding.
 The SQLite API contains functions which allow passing and retrieving text using either UTF-8 or UTF-16 encoding.
 These functions can be freely mixed and proper conversions are performed transparently when necessary.
 
-[2] Implementers may use `INTEGER` or `REAL` if a dataset needs it; otherwise may apply the rules for a direct use (see [3]).
-
-[3] *Direct use scenario*: `Decimal` values stored in SQLite as `TEXT` can be used in [SQL `CAST` expressions](https://www.sqlite.org/lang_expr.html#castexpr) to convert them into `INTEGER` and `REAL` values. If the text:
+[2] Implementers may use `TEXT` if a dataset needs it; values stored in SQLite as `TEXT` can be used in [SQL `CAST` expressions](https://www.sqlite.org/lang_expr.html#castexpr) to convert them into `INTEGER` and `REAL` values. If the text:
 
 - Looks like an integer and the value is small enough to fit in a 64-bit signed integer, then the result will be `INTEGER`.
 - Looks like floating point (there is a decimal point and/or an exponent) and can be losslessly converted back and forth between IEEE 754 64-bit float and a 51-bit signed integer, then the result is `INTEGER`.
@@ -310,9 +310,9 @@ The supported geometry model is as follows:
 - `CURVE` (abstract) subtypes are `LINESTRING`, `CIRCULARSTRING` and `COMPOUNDCURVE`.
 - `SURFACE` (abstract) subtype is `CURVEPOLYGON`.
 - `CURVEPOLYGON` subtype is `POLYGON`.
-- `GEOMETRYCOLLECTION` subtypes are `MULTIPOINT`, `MULTICURVE` (abstract) and `MULTISURFACE` (abstract).
-- `MULTICURVE` (abstract) subtype is `MULTILINESTRING`.
-- `MULTISURFACE` (abstract) subtype is `MULTIPOLYGON`.
+- `GEOMETRYCOLLECTION` subtypes are `MULTIPOINT`, `MULTICURVE` and `MULTISURFACE`.
+- `MULTICURVE` subtype is `MULTILINESTRING`.
+- `MULTISURFACE` subtype is `MULTIPOLYGON`.
 
 The correspondence of concepts of this geometry subset with concepts of the geometry model of ISO 19107 are described in [ISO 19125-1:2004](https://www.iso.org/standard/40114.html).
 
@@ -320,15 +320,16 @@ The tables below contain a the mapping of ISO 19107 used in INSPIRE UML models.
 
 **Table: ISO 19107 types used in models and its standard GeoPackage datatype mapping.**
 
-| ISO 19107 type | GeoPackage datatype | Allowed data values |
-| ------ | ----- | ----- |
-| `GM_Curve` | `CURVE` | `LINESTRING`, `CIRCULARSTRING` and `COMPOUNDCURVE`
-| `GM_MultiCurve` | `MULTICURVE` | `MULTILINESTRING`
-| `GM_MultiSurface` | `MULTISURFACE` | `MULTIPOLYGON`
-| `GM_Object` | `GEOMETRY` | Any
-| `GM_Point` | `POINT` | `POINT`
-| `GM_Polygon` | `POLYGON` | `POLYGON`
-| `GM_Surface` | `SURFACE` | `CURVEPOLYGON` and `POLYGON`
+| ISO 19107 type | GeoPackage datatype |
+| ------ | ----- |
+| `GM_Curve` | `CURVE` |
+| `GM_MultiCurve` | `MULTICURVE` |
+| `GM_MultiSurface` | `MULTISURFACE` |
+| `GM_Object` | `GEOMETRY` |
+| `GM_Point` | `POINT` |
+| `GM_MultiPoint` | `MULTIPOINT` |
+| `GM_Polygon` | `POLYGON` |
+| `GM_Surface` | `SURFACE` |
 
 **Table: ISO 19107 types used in models with non standard datatype mapping.**
 
@@ -387,6 +388,17 @@ For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be f
 | |`characterSetCode` | `TEXT`| Enum constraint `MD_CharacterSetCode`
 | |`country` | `TEXT`| Enum constraint `GMD_CountryCode`
 | `URI` | | `TEXT`  |  |
+
+##### Other types
+
+![In progress][in-progress-shield]
+
+**Table: Other types to GeoPackage datatype mapping.**
+
+|  Type |  GeoPackage datatype | Constraints | Conversion Notes |
+| ------ | ----- | ----- | ---- |
+| `Short` | `INTEGER`  |  |
+| `Long` | `INTEGER`  |  |
 
 ##### Flattening of nested structures
 
