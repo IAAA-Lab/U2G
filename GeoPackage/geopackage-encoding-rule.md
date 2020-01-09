@@ -207,7 +207,7 @@ Given a package `A` with the stereotype `<<applicationSchema>>`, its encoding as
 - Types, enumerations and code lists reachable recursively except those that can only be reached through a `<<featureType>>` defined in an `<<applicationSchema>>` different from `A`.
 
 References to `<<featureTypes>>` in the logical boundary are replaced by the type `Identifier`.
-This approach is similar to the role of `XLink` in the `GML` specification to implement referencing. 
+This approach is similar to the role of `XLink` in the `GML` specification to implement referencing.
 
 **Model transformation rule:**
 > Given a set `root` of `<<applicationSchema>>` packages, this rule determines which types are candidates to be encoded in a `GeoPackage file`.
@@ -269,6 +269,7 @@ The exact mapping from the UML model to the [GeoPackage datatypes](https://www.g
 | `Decimal` | `REAL` | `REAL` |
 | `Date` | `DATE` | `TEXT` | ISO8601 date strings `YYYY-MM-DD`. |
 | `DateTime` | `DATETIME` | `TEXT` | ISO-8601 date/time in UTC strings `YYYY-MM-DDTHH:MM:SS.SSSZ` |
+| `UnitOfMeasure` | `TEXT` | `TEXT` | Constraint enum [3]
 
 [1] SQLite stores all text as Unicode characters encoded using either UTF-8 or UTF-16 encoding.
 The SQLite API contains functions which allow passing and retrieving text using either UTF-8 or UTF-16 encoding.
@@ -282,6 +283,10 @@ These functions can be freely mixed and proper conversions are performed transpa
 
 Any UML Model property whose  `Integer` or `Real` values may overflow the limits of the respective SQLite storage class (i.e. `INTEGER`, `REAL`) should be mapped to `TEXT`, with specific rules being defined on a case-by-case basis in each theme profile.
 
+[3] The syntax and value space is the same of `gml:UomIdentifier`.
+The legal values of the new property are the literals of the data column constraint enum `GML_UomIdentifier`.
+This restriction may be enforced by SQL triggers or by code in applications that update GeoPackage data values.
+
 Any other UML Model property type is to be mapped to `TEXT`, with specific rules being defined on a case-by-case basis in each theme profile.
 
 ###### Properties with a `uom` attribute
@@ -290,11 +295,7 @@ Any other UML Model property type is to be mapped to `TEXT`, with specific rules
 
 The unit of measurement attribute (`uom`) on any property `x` has to be retained.
 
-It is transformed to a new property of the type `TEXT` with the name `x_uom`.
-
-The syntax and value space of the new property is the same of `gml:UomIdentifier`.
-The legal values of the new property are the literals of the data column constraint enum `GML_UomIdentifier`.
-This restriction may be enforced by SQL triggers or by code in applications that update GeoPackage data values.
+It is transformed to a new property with the name `x_uom` that will be mapped to a column of type `TEXT` with the enum constraint `GML_UomIdentifier`.
 
 ##### ISO 19107 - Geometry types
 
