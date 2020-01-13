@@ -25,7 +25,7 @@
       - [Data Types](#data-types)
       - [ISO 19103](#iso-19103)
         - [Basic types](#basic-types)
-        - [Properties with a uom attribute](#properties-with-a-uom-attribute)
+        - [Properties with a `uom` attribute](#properties-with-a-uom-attribute)
       - [ISO 19107 - Geometry types](#iso-19107---geometry-types)
       - [ISO 19108 - Temporal types](#iso-19108---temporal-types)
       - [ISO 19115 - Metadata types](#iso-19115---metadata-types)
@@ -232,11 +232,20 @@ This approach is similar to the role of `XLink` in the `GML` specification to im
 
 ![Implemented][implemented-shield]
 
-All concrete types that have the stereotype `<<featureType>>` can be converted to GeoPackage content with the following considerations:
+The GeoPackage encoding standard mandates in Requirement [30](https://www.geopackage.org/spec/#r30) that `feature tables` (or views) shall only have a single geometry column.
+This is advantageous because allowing multiple (or none) geometries per feature table would compromise GeoPackage's position in the GIS application ecosystem.
+However, there are features types in INSPIRE models with none or multiple geometries.
+
+Therefore, all concrete types that have the stereotype `<<featureType>>` can be converted to GeoPackage content with the following considerations:
 
 - Where a class has one attribute with a geometry type and a maximum multiplicity of `1`, the class will be mapped to a `feature table` and the type of this attribute will be mapped to a GeoPackage geometry type ([ISO 19107 - Geometry types](#iso-19107---geometry-types)).
 - Where a class has no geometry attributes (for example `Addresses::ThoroughfareName`), the class will be mapped to a `attribute table` (see [Data types](#data-types)). A GeoPackage `feature table` shall have one geometry column.
-- Otherwise, i.e. a class has more than one geometry attribute or the maximum multiplicity is greater than `1`, a theme-specific profile has to define which geometry attribute is the _default_ geometry and how to map the additional geometry attributes. A GeoPackage `feature table` shall have only one explicit geometry column.
+- Where a class has several attributes with a geometry type, all with a maximum multiplicity of `1`, and only one is not `<<voidable>>`, the class will be mapped to a `feature table`, all `<<voidable>>` geometry attributes are moved to new `feature type` classes named as the name of the original class plus an underscore (`_`) plus the name of the attribute (e.g. `CadastralParcel_referencePoint`, `Borehole_downholeGeometry`) and an 1:1 association role is added between each new class and the original. [1]
+- Otherwise, i.e. a class has more than one non voidable geometry attribute or the maximum multiplicity is greater than `1`, a theme-specific profile has to define which geometry attribute is the _default_ geometry and how to map the additional geometry attributes. A GeoPackage `feature table` shall have only one explicit geometry column.
+
+![Implementation note][note-shield]
+
+[1] Since a GeoPackage is a relational database, it is recommended for associating values relating to the same feature in different `feature tables` the use of the same row `id` to link them.
 
 ##### Data Types
 
