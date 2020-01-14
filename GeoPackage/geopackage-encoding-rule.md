@@ -362,9 +362,14 @@ The proposed mapping may imply the use of an `attribute table` instead of a `fea
 
 If a specific dataset requires a geometry type that cannot be mapped to an instantiable type in the GeoPackage geometry model (either the [Core model](https://www.geopackage.org/spec121/#core_geometry_model_figure) or an extension such as the [Non-linear geometry type extension](https://www.geopackage.org/spec121/#extension_geometry_types)) and a standard encoding for the geometry is available, use the same strategy applied for `GM_Solid` for such dataset.
 
-In the GeoPackage 1.2.1 specification, `feature table` geometry columns shall contains geometries of the type or assignable for the type specified for the column in the `gpkg_geometry_columns` table.
-However, it is under consideration for the GeoPackage 1.3 specification to require to contain only geometries of the type.
-This can lead to changes in this encoding rule.
+In the GeoPackage 1.2.1 specification, Requirement [32](https://www.geopackage.org/spec121/#r32) `feature table` geometry columns shall contains geometries of the type or assignable for the type specified for the column in the `gpkg_geometry_columns` table.
+However, it is under consideration for the GeoPackage 1.3 specification (see [here](https://www.geopackage.org/spec/#r32)) that `feature table` geometry columns shall contains only geometries of the type specified for the column in the `gpkg_geometry_columns` table.
+There will be two exceptions:
+
+- `GEOMETRY`, then the feature table geometry column may contain geometries of any allowed geometry type.
+- `GEOMETRYCOLLECTION` then the feature table geometry column may contain zero or more geometries of any allowed geometry type.
+
+This future change, when officially adopted, may lead to changes in this encoding rule.
 
 ##### ISO 19108 - Temporal types
 
