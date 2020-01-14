@@ -37,6 +37,7 @@
       - [Enumerations and Code lists](#enumerations-and-code-lists)
       - [Voidable](#voidable)
     - [Alternate Structures for specific types or type hierarchies](#alternate-structures-for-specific-types-or-type-hierarchies)
+      - [Simplified Localized Character String](#simplified-localized-character-string)
       - [Simplified Geographic Name](#simplified-geographic-name)
       - [Simplified Citation](#simplified-citation)
     - [Properties](#properties)
@@ -397,11 +398,6 @@ For types from ISO 19115 used in INSPIRE schemas, suitable mappings need to be f
 
 | ISO 19139 type | Attribute |  GeoPackage datatype | Constraints | Conversion Notes |
 | ------ | --- | ----- | ----- | ---- |
-| `LocalisedCharacterString` | _Content_ | `TEXT` | | If stored standalone uses a column named `text`.
-| | `locale` | | | Type `PT_Locale` flattened in `LocalisedCharacterString` but attributes keep the name unchanged
-| `PT_Locale` | `languageCode` | `TEXT` | `NOT NULL`, Enum constraint `GMD_LanguageCode`
-| |`characterSetCode` | `TEXT`| Enum constraint `MD_CharacterSetCode`
-| |`country` | `TEXT`| Enum constraint `GMD_CountryCode`
 | `URI` | | `TEXT`  |  |
 
 ##### Other types
@@ -535,6 +531,25 @@ Authoritative descriptions of the reasons for void values in the INSPIRE Registr
 | `4` | `attributeType` | `http://www.isotc211.org/2005/gmd` | `text/xml` | Content of `http://inspire.ec.europa.eu/codelist/VoidReasonValue/Withheld/Withheld.en.iso19135xml`
 
 #### Alternate Structures for specific types or type hierarchies
+
+##### Simplified Localized Character String
+
+![Implemented][implemented-shield]
+
+The package _Cultural and linguistic adaptability_ of ISO 19139 is an informative package (i.e. concepts are not implementable as-is) that defines types for representing localized texts (`LocalisedChacterString`, `PT_FreeText`, `PT_Locale`, `PT_LocaleContainer`).
+
+The [GeoJSON encoding rule regarding to ISO 19103 basic types](https://github.com/INSPIRE-MIF/2017.2/blob/master/GeoJSON/geojson-encoding-rule.md#iso-19103---basic-types) maps `LocalisedChacterString` value to a string and keeps `languageCode`as a separate property.
+
+The GeoPackage encoding rule proposes a simplified way to representing localized texts similar but more expressive with the new `<<type>>` `SimpleLocalisedCharacterString` that has two properties:
+
+- a property that holds the text of type `CharacterString`.
+- a property named `locale` of type `<<codelist>>` `Locale`.
+
+The value space of `Locale` is defined by `PT_Locale`. The recommended syntax is a URI or the string `language[_country][.characterEncoding]` similar to POSIX locales.
+`characterEncoding` should be considered optional and, if used, it should be the same as the encoding of the GeoPackage (UTF-8 or UTF-16).
+
+The new type `SimpleLocalisedCharacterString` should replace the use of `LocalisedChacterString` and `PT_FreeText`.
+When the new type replaces the use of `PT_FreeText` in an attribute, the upper bound of the attribute must be set to unbounded, so we can capture the intended purpose of the association `textGroup`.
 
 ##### Simplified Geographic Name
 
