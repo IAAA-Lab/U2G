@@ -32,7 +32,7 @@
       - [ISO 19139 - Metadata XML implementation types](#iso-19139---metadata-xml-implementation-types)
       - [Other types](#other-types)
       - [Flattening of nested structures](#flattening-of-nested-structures)
-      - [Abstract Types as property types](#abstract-types-as-property-types)
+      - [Replace abstract types in properties by Identifier](#replace-abstract-types-in-properties-by-identifier)
       - [Union Types](#union-types)
       - [Enumerations and Code lists](#enumerations-and-code-lists)
       - [Voidable](#voidable)
@@ -437,11 +437,19 @@ Given a candidate property `x` of type `B` in a class `A` that can be flattened,
 >
 > This process is performed recursively until the rule can no longer be applied.
 
-##### Abstract Types as property types
+##### Replace abstract types in properties by Identifier
 
-Where an abstract type with multiple concrete sub-types is used as a property type, a suitable choice of a concrete subtype should be made on a case-by-case basis.
+![Implemented][implemented-shield]
 
-As an example, limiting the potential geometry types in this way can make processing easier.
+Where an abstract `<<featureType>>` with multiple concrete sub-types is used as a property type, the property is renamed to provide a hint and the type is replaced by `Identifier`.
+This approach is similar to the role of `XLink` in the `GML` specification to implement referencing.
+
+**Model transformation rule:**
+> This rule modifies properties that references an abstract `<<featureType>>`.
+>
+> - For each property `x` of `A` whose type is an abstract `<<featureType>>` `B`.
+>   - The property `x` type is changed to `Identifier`.
+>   - The property `x` is renamed to `x_B`.
 
 ##### Union Types
 
